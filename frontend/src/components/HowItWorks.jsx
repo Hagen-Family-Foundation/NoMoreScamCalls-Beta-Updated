@@ -10,21 +10,21 @@ const steps = [
   },
   {
     icon: PhoneIncoming,
-    title: "Receive your ScamStop forwarding number",
+    title: "Receive your assigned forwarding number",
     description:
-      "After your beta account is created, we\u2019ll provide the assigned ScamStop number your protected phone should forward to.",
+      "After your beta account is created, we\u2019ll provide the number your protected phone should forward to.",
   },
   {
     icon: PhoneForwarded,
     title: "Turn on call forwarding",
     description:
-      "Use your carrier\u2019s call-forwarding feature to forward your protected phone number to the assigned ScamStop number shown on this page.",
+      "Use your carrier\u2019s call-forwarding feature to forward your protected phone number to the assigned number shown on this page.",
   },
   {
     icon: ShieldCheck,
     title: "Ready for your first test call",
     description:
-      "After forwarding is turned on, click \u201CI have turned on call forwarding.\u201D Your setup will be marked ready for a first test call so ScamStop can confirm the connection is working.",
+      "After forwarding is turned on, click \u201CI have turned on call forwarding.\u201D We\u2019ll place a first test call to confirm the system is connected correctly.",
   },
 ];
 

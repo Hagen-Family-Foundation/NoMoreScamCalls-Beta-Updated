@@ -22,7 +22,7 @@ const ENDPOINTS = {
  */
 export const STATUS_LABELS = {
   setup_not_started: "Setup not started",
-  forwarding_number_assigned: "ScamStop forwarding number assigned",
+  forwarding_number_assigned: "Forwarding number assigned",
   forwarding_confirmed: "Forwarding marked as turned on",
   first_test_call_pending: "First test call pending",
   first_test_call_pending_manual: "First test call pending beta team review",
@@ -42,7 +42,7 @@ function extractSubscriberData(data) {
   const subscriberToken =
     data.subscriber_token || data.subscriberToken || data.token || null;
 
-  // Extract the assigned ScamStop/Telnyx forwarding number
+  // Extract the assigned forwarding number
   const systemNumber =
     data.telnyx_system_number ||
     data.telnyxSystemNumber ||

@@ -33,7 +33,7 @@ export const HeroSection = ({ onStartSetup }) => {
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl animate-fade-in [animation-delay:200ms] opacity-0">
-            NoMoreScamCalls is opening a private beta for early testers. Enter the phone number you want protected, receive your assigned ScamStop forwarding number, turn on call forwarding with your carrier, and get ready for your first test call.
+            NoMoreScamCalls is opening a private beta for early testers. Enter the phone number you want protected, receive your assigned forwarding number, turn on call forwarding with your carrier, and get ready for your first test call.
           </p>
 
           {/* CTA */}
