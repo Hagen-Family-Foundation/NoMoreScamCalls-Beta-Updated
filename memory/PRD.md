@@ -1,7 +1,7 @@
 # NoMoreScamCalls.com - Beta Onboarding Landing Page
 
 ## Overview
-Single-page beta onboarding landing page for NoMoreScamCalls.com where invited beta testers can join the private beta, enter their phone information, verify their forwarding number, and see a "protection active" status.
+Single-page beta onboarding landing page for NoMoreScamCalls.com where invited beta testers can join the private beta, enter their phone information, set up call forwarding to the assigned ScamStop/Telnyx number, and get ready for their first test call.
 
 ## Tech Stack
 - React (CRA) + Tailwind CSS + Shadcn/UI
@@ -10,17 +10,24 @@ Single-page beta onboarding landing page for NoMoreScamCalls.com where invited b
 ## Page Structure
 1. **Header** - Sticky nav with brand name + Beta badge
 2. **Hero Section** - Private Beta badge, headline, subheadline, CTA
-3. **How it Works** - 3 step cards (Enter info → Verify → Start testing)
-4. **Beta Onboarding Form** - Multi-step form with progress indicator
-5. **Trust Footer** - Privacy disclaimers, inactive features note
+3. **How it Works** - 3 step cards (Enter info → Set up forwarding → Ready for test call)
+4. **Beta Onboarding Form** - 3-step flow with progress indicator (Info → Forward → Ready)
+5. **Footer** - Brand + beta coordinator contact
+
+## Corrected Flow (v2)
+- **Step 1 (Info)**: Collect name, email, protected phone → POST to backend
+- **Step 2 (Forward)**: Display assigned ScamStop/Telnyx number, forwarding instructions, "I have turned on call forwarding" button
+- **Step 3 (Ready)**: Success - "Ready for first test call" with checklist
+
+## Removed from v1
+- Forwarding phone number field
+- SMS verification code flow
+- Footer scanning disclaimers (email/SMS/Skeeter)
 
 ## API Integration
-- `POST /subscriber/onboarding` - Create beta account
-- `POST /subscriber/{id}/forwarding/verify/start` - Send verification code
-- `POST /subscriber/{id}/forwarding/verify/confirm` - Confirm code
+- `POST /subscriber/onboarding` - Create beta account (name, email, protected_phone_number)
 - All API config centralized in `/src/lib/api.js`
-- Bearer token auth for private endpoints
-- In-memory state (no localStorage)
+- Defensively extracts system_number from onboarding response
 
 ## Design System
 - Primary: Calming teal (`187 65% 33%`)
