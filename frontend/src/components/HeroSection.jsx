@@ -33,7 +33,7 @@ export const HeroSection = ({ onStartSetup }) => {
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl animate-fade-in [animation-delay:200ms] opacity-0">
-            NoMoreScamCalls is opening a private beta for early testers. The setup is simple: enter your information, set up call forwarding to our ScamStop system, and help us test the call protection flow before public launch.
+            NoMoreScamCalls is opening a private beta for early testers. Enter the phone number you want protected, receive your assigned ScamStop forwarding number, turn on call forwarding with your carrier, and get ready for your first test call.
           </p>
 
           {/* CTA */}
@@ -49,7 +49,7 @@ export const HeroSection = ({ onStartSetup }) => {
 
           {/* Reassurance */}
           <p className="text-sm text-muted-foreground leading-relaxed animate-fade-in [animation-delay:400ms] opacity-0">
-            Takes about 2 minutes. This beta focuses only on call protection setup and forwarding configuration.
+            This beta focuses only on call protection setup. Email scanning, SMS scanning, web reputation tools, and Skeeter features are not active in this beta.
           </p>
         </div>
       </div>

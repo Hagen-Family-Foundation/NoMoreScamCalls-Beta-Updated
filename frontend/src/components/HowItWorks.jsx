@@ -12,19 +12,19 @@ const steps = [
     icon: PhoneIncoming,
     title: "Receive your ScamStop forwarding number",
     description:
-      "After your beta account is created, we'll provide the ScamStop/Telnyx number assigned to you. This is the number you will use when setting up call forwarding with your phone carrier.",
+      "After your beta account is created, we\u2019ll provide the assigned ScamStop number your protected phone should forward to.",
   },
   {
     icon: PhoneForwarded,
     title: "Turn on call forwarding",
     description:
-      "Use your carrier's call-forwarding feature to forward your protected phone number to the assigned ScamStop number. The page will clearly display the assigned number and explain that this is the destination number for forwarding.",
+      "Use your carrier\u2019s call-forwarding feature to forward your protected phone number to the assigned ScamStop number shown on this page.",
   },
   {
     icon: ShieldCheck,
     title: "Ready for your first test call",
     description:
-      "Once forwarding is set up, click \u201CI have turned on call forwarding.\u201D We'll place a test call to confirm ScamStop is connected and screening calls correctly.",
+      "After forwarding is turned on, click \u201CI have turned on call forwarding.\u201D Your setup will be marked ready for a first test call so ScamStop can confirm the connection is working.",
   },
 ];
 
