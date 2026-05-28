@@ -5,9 +5,6 @@ import { Shield, Lock, Info } from "lucide-react";
 const footerItems = [
   "Private beta",
   "Call protection setup only",
-  "Email scanning inactive",
-  "SMS scanning inactive",
-  "Skeeter inactive",
 ];
 
 export const TrustFooter = () => {

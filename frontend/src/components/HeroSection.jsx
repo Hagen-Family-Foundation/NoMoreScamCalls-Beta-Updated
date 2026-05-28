@@ -49,7 +49,7 @@ export const HeroSection = ({ onStartSetup }) => {
 
           {/* Reassurance */}
           <p className="text-sm text-muted-foreground leading-relaxed animate-fade-in [animation-delay:400ms] opacity-0">
-            This beta focuses only on call protection setup. Email scanning, SMS scanning, web reputation tools, and Skeeter features are not active in this beta.
+            Takes about 2 minutes. No complicated setup required.
           </p>
         </div>
       </div>
