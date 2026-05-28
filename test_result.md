@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the updated NoMoreScamCalls beta onboarding landing page with significantly changed flow: 3-field form (no forwarding phone), step progress showing 'Info/Forward/Ready', updated How It Works section, and simplified footer."
+user_problem_statement: "Test the updated NoMoreScamCalls beta onboarding landing page with 4-step process: 4-step cards in How It Works section, step progress showing 'Info/Number/Forward/Ready', 3-field form (no forwarding phone), and simplified footer."
 
 frontend:
   - task: "Page Load & Header"
@@ -119,6 +119,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [NEW VERSION - RETESTED] Header with 'NoMoreScamCalls' + 'Beta' badge renders correctly. All sections load properly with updated content."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] Page loads successfully. Header with 'NoMoreScamCalls' and 'Beta' badge visible. All sections render correctly with 4-step process."
 
   - task: "Hero Section - Updated content"
     implemented: true
@@ -132,7 +135,7 @@ frontend:
           agent: "testing"
           comment: "✅ All hero section elements verified: 'Private Beta' badge present, headline 'Help us test a smarter way to stop scam calls.' correct, subheadline mentions 'call forwarding to our ScamStop system' (NOT 'verify your forwarding number'), 'Start beta setup' CTA button present, reassurance text 'Takes about 2 minutes...' present."
 
-  - task: "How It Works - Updated steps"
+  - task: "How It Works - 4 step cards with specific content"
     implemented: true
     working: true
     file: "/app/frontend/src/components/HowItWorks.jsx"
@@ -143,8 +146,11 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ All 3 steps verified: Step 1 'Enter your beta info', Step 2 'Set up call forwarding' (NOT 'Verify your forwarding number'), Step 3 'Ready for your first test call' (NOT 'Start testing protection'). Old text successfully removed."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] VERIFIED: Exactly 4 step cards present. Step 1: 'Enter your beta info' with description 'Tell us who you are and which phone number you want protected.' Step 2: 'Receive your ScamStop forwarding number' mentions 'ScamStop/Telnyx number assigned to you' and 'setting up call forwarding with your phone carrier'. Step 3: 'Turn on call forwarding' mentions 'carrier's call-forwarding feature' and 'assigned ScamStop number'. Step 4: 'Ready for your first test call' mentions 'I have turned on call forwarding' and 'test call'. All required content verified."
 
-  - task: "Step Progress Indicator - Updated labels"
+  - task: "Step Progress Indicator - 4 steps with correct labels"
     implemented: true
     working: true
     file: "/app/frontend/src/components/StepProgress.jsx"
@@ -158,6 +164,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [NEW VERSION - RETESTED] Step progress indicator shows 'Info', 'Forward', 'Ready' (NOT 'Info', 'Verify', 'Ready'). Old label 'Verify' correctly replaced with 'Forward'."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] VERIFIED: Step progress indicator shows exactly 4 steps with labels 'Info', 'Number', 'Forward', 'Ready'. Step 1 ('Info') is active with teal color. Steps 2, 3, 4 are inactive with gray color. 3 connector lines visible between the 4 circles. All requirements met."
 
   - task: "Form Fields - Only 3 fields (no forwarding phone)"
     implemented: true
@@ -173,6 +182,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [NEW VERSION - RETESTED] ONLY 3 fields present: data-testid='input-full-name', data-testid='input-email', data-testid='input-protected-phone', data-testid='button-create-beta-account'. VERIFIED: NO input-forwarding-phone field exists. No 'Forwarding phone number' text anywhere on page."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] VERIFIED: Form has exactly 3 fields - Full name (data-testid='input-full-name'), Email (data-testid='input-email'), Protected phone (data-testid='input-protected-phone'). NO forwarding phone field exists. Submit button present (data-testid='button-create-beta-account')."
 
   - task: "Form Validation - Empty form (3 errors only)"
     implemented: true
@@ -188,6 +200,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [NEW VERSION - RETESTED] Submitting empty form shows exactly 3 validation errors: 'Full name is required.', 'Email is required.', 'Protected phone number is required.'. VERIFIED: No 4th field error. No validation error for forwarding phone."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] VERIFIED: Submitting empty form shows exactly 3 validation errors: 'Full name is required.', 'Email is required.', 'Protected phone number is required.'. No 4th field error. Validation working correctly."
 
   - task: "Footer - Simplified content (no disclaimers)"
     implemented: true
@@ -200,18 +215,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ Footer shows ONLY 'NoMoreScamCalls' brand and 'Questions? Contact the beta coordinator.' VERIFIED: NO 'Private beta', 'No email scanning active', 'No SMS scanning active', 'No Skeeter features active' disclaimers. All old disclaimer items successfully removed."
-
-  - task: "Negative Tests - Removed elements verification"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/BetaOnboarding.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
         - working: true
           agent: "testing"
-          comment: "✅ All removed elements verified: NO 'forwarding phone number' input field, NO 'Send verification code' button, NO 'verification code' input field, NO 'Confirm code' button, NO SMS/email/Skeeter scanning disclaimers in footer."
+          comment: "✅ [4-STEP VERSION] VERIFIED: Footer shows only 'NoMoreScamCalls' brand name and 'Questions? Contact the beta coordinator.' text. NO disclaimers present (no 'Private beta', 'email scanning', 'SMS scanning', 'Skeeter' text). Footer simplified as required."
 
   - task: "Mobile Responsiveness - 390x844 viewport"
     implemented: true
@@ -227,6 +233,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [NEW VERSION - RETESTED] All elements visible and interactive at 390x844: Header, hero section, all 3 form fields, footer. Layout adapts correctly for mobile."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] VERIFIED: All elements visible and readable at 390x844 mobile viewport. Header visible, all 4 step cards in How It Works section visible, step progress indicator with all 4 steps (Info/Number/Forward/Ready) fits properly on mobile, all 3 form fields visible and interactive, footer visible. Mobile responsiveness working perfectly."
 
   - task: "Form Submission - API error handling"
     implemented: true
@@ -239,11 +248,14 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ Form submission attempts API call. As expected per requirements, the external API is not accessible. Error handling works correctly, displaying appropriate error message. Error message is shown in a styled alert box with proper formatting."
+        - working: true
+          agent: "testing"
+          comment: "✅ [4-STEP VERSION] VERIFIED: Form submission with valid data (John Smith, john.smith@example.com, (555) 123-4567) triggers API call. As expected, API at https://scamcop-api.smokey831831.workers.dev is not reachable. Error handling works correctly, displaying error message: 'Something went wrong creating your beta account. Please check your connection and try again.' Error shown in styled alert box with proper formatting."
 
 metadata:
   created_by: "testing_agent"
-  version: "2.0"
-  test_sequence: 2
+  version: "3.0"
+  test_sequence: 3
   run_ui: true
   last_test_date: "2025-05-28"
 
@@ -258,3 +270,5 @@ agent_communication:
       message: "✅ [INITIAL TEST] COMPREHENSIVE TESTING COMPLETED - All tests passed successfully. The NoMoreScamCalls beta onboarding landing page is fully functional and ready for beta testing. All UI elements, navigation, form validation, mobile responsiveness, and visual design meet requirements. The external API at https://scamcop-api.smokey831831.workers.dev is not accessible (as expected per requirements), but error handling works correctly. No critical issues found. Screenshots captured for desktop and mobile views showing proper layout, validation, and responsive design."
     - agent: "testing"
       message: "✅ [UPDATED VERSION TEST] COMPREHENSIVE RETESTING COMPLETED - All 10 tests passed successfully. The updated NoMoreScamCalls beta onboarding landing page has been successfully updated with the new flow. VERIFIED CHANGES: (1) Form now has ONLY 3 fields (no forwarding phone field), (2) Step progress shows 'Info/Forward/Ready' (not 'Info/Verify/Ready'), (3) How It Works section updated with correct steps, (4) Footer simplified to show only brand and contact info (no disclaimers), (5) Hero subheadline mentions 'call forwarding to our ScamStop system'. ALL NEGATIVE TESTS PASSED: No forwarding phone field, no verification code elements, no old disclaimers. Mobile responsiveness (390x844) works perfectly. API error handling works correctly. No critical issues found. 8 screenshots captured showing all updated elements."
+    - agent: "testing"
+      message: "✅ [4-STEP VERSION TEST] COMPREHENSIVE TESTING COMPLETED - All 7 tests passed successfully. The NoMoreScamCalls beta onboarding landing page has been successfully updated to 4-step process. VERIFIED: (1) How It Works section has exactly 4 step cards with correct titles and descriptions - Step 1: 'Enter your beta info', Step 2: 'Receive your ScamStop forwarding number' (mentions ScamStop/Telnyx number and call forwarding setup), Step 3: 'Turn on call forwarding' (mentions carrier's call-forwarding feature and assigned ScamStop number), Step 4: 'Ready for your first test call' (mentions 'I have turned on call forwarding' and test call). (2) Step Progress Indicator shows exactly 4 steps with labels 'Info', 'Number', 'Forward', 'Ready' - Step 1 active (teal), Steps 2-4 inactive (gray), 3 connector lines visible. (3) Form has only 3 fields (name, email, protected phone) - NO forwarding phone field. (4) Form validation shows exactly 3 errors when empty. (5) Footer simplified - only brand name and 'Questions? Contact the beta coordinator.' text, NO disclaimers. (6) Mobile responsiveness at 390x844 - all 4 steps visible and readable, progress indicator fits properly. (7) API error handling works correctly (expected behavior). No critical issues found. 10 screenshots captured showing all requirements met."

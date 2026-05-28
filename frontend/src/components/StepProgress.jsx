@@ -2,11 +2,11 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
-const stepLabels = ["Info", "Forward", "Ready"];
+const stepLabels = ["Info", "Number", "Forward", "Ready"];
 
 export const StepProgress = ({ currentStep }) => {
   return (
-    <div className="flex items-center justify-center gap-0 w-full max-w-xs mx-auto mb-8">
+    <div className="flex items-center justify-center gap-0 w-full max-w-sm mx-auto mb-8">
       {stepLabels.map((label, index) => {
         const stepNum = index + 1;
         const isComplete = currentStep > stepNum;
@@ -34,7 +34,7 @@ export const StepProgress = ({ currentStep }) => {
               {/* Label */}
               <span
                 className={cn(
-                  "text-xs font-medium",
+                  "text-[11px] font-medium",
                   isComplete && "text-success",
                   isActive && "text-primary",
                   isUpcoming && "text-muted-foreground"
@@ -46,7 +46,7 @@ export const StepProgress = ({ currentStep }) => {
 
             {/* Connector line */}
             {index < stepLabels.length - 1 && (
-              <div className="flex-1 mx-2 mb-5">
+              <div className="flex-1 mx-1.5 sm:mx-2 mb-5">
                 <div
                   className={cn(
                     "h-0.5 rounded-full transition-base",

@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { UserPlus, PhoneForwarded, ShieldCheck } from "lucide-react";
+import { UserPlus, PhoneIncoming, PhoneForwarded, ShieldCheck } from "lucide-react";
 
 const steps = [
   {
@@ -9,14 +9,22 @@ const steps = [
     description: "Tell us who you are and which phone number you want protected.",
   },
   {
+    icon: PhoneIncoming,
+    title: "Receive your ScamStop forwarding number",
+    description:
+      "After your beta account is created, we'll provide the ScamStop/Telnyx number assigned to you. This is the number you will use when setting up call forwarding with your phone carrier.",
+  },
+  {
     icon: PhoneForwarded,
-    title: "Set up call forwarding",
-    description: "Forward your protected number to the assigned ScamStop number using your carrier's call-forwarding feature.",
+    title: "Turn on call forwarding",
+    description:
+      "Use your carrier's call-forwarding feature to forward your protected phone number to the assigned ScamStop number. The page will clearly display the assigned number and explain that this is the destination number for forwarding.",
   },
   {
     icon: ShieldCheck,
     title: "Ready for your first test call",
-    description: "Once forwarding is set up, we'll place a test call to confirm ScamStop is screening calls correctly.",
+    description:
+      "Once forwarding is set up, click \u201CI have turned on call forwarding.\u201D We'll place a test call to confirm ScamStop is connected and screening calls correctly.",
   },
 ];
 

@@ -27,14 +27,14 @@ function isValidEmail(email) {
 }
 
 export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, ref) {
-  // App state — 1=info, 2=forwarding setup, 3=ready
+  // App state — 1=info, 2=receive number, 3=turn on forwarding, 4=ready
   const [step, setStep] = useState(1);
   const [subscriberId, setSubscriberId] = useState(null);
   const [subscriberToken, setSubscriberToken] = useState(null);
   const [systemNumber, setSystemNumber] = useState(null);
   const [sessionLost, setSessionLost] = useState(false);
 
-  // Form fields (only 3 fields now)
+  // Form fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [protectedPhone, setProtectedPhone] = useState("");
@@ -58,7 +58,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
     return Object.keys(errors).length === 0;
   }, [fullName, email, protectedPhone]);
 
-  // Step 1: Create beta account
+  // Step 1: Create beta account → moves to Step 2
   const handleCreateAccount = async (e) => {
     e.preventDefault();
     setError("");
@@ -82,9 +82,14 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
     }
   };
 
-  // Step 2: Tester confirms they completed forwarding
-  const handleForwardingConfirmed = () => {
+  // Step 2 → Step 3: User acknowledges the number, moves to forwarding instructions
+  const handleContinueToForwarding = () => {
     setStep(3);
+  };
+
+  // Step 3 → Step 4: User confirms they turned on forwarding
+  const handleForwardingConfirmed = () => {
+    setStep(4);
   };
 
   // Copy number to clipboard
@@ -95,7 +100,6 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      // Fallback for older browsers
       const textarea = document.createElement("textarea");
       textarea.value = number;
       document.body.appendChild(textarea);
@@ -154,9 +158,9 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
         {/* Step Progress */}
         <StepProgress currentStep={step} />
 
-        {/* ===================== */}
-        {/* Step 1: Beta Info Form */}
-        {/* ===================== */}
+        {/* ======================== */}
+        {/* Step 1: Enter Beta Info  */}
+        {/* ======================== */}
         {step === 1 && (
           <Card className="shadow-elevated border-border/60 animate-fade-in-up">
             <CardHeader className="pb-4">
@@ -299,17 +303,17 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
           </Card>
         )}
 
-        {/* ================================= */}
-        {/* Step 2: Forwarding Setup Instructions */}
-        {/* ================================= */}
+        {/* =========================================== */}
+        {/* Step 2: Receive Your ScamStop Number        */}
+        {/* =========================================== */}
         {step === 2 && (
           <Card className="shadow-elevated border-border/60 animate-fade-in-up">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg sm:text-xl font-semibold text-foreground">
-                Set up call forwarding
+                Your ScamStop forwarding number
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                Forward your protected number to the ScamStop system so we can screen incoming calls.
+                Your beta account has been created. Below is the ScamStop/Telnyx number assigned to you. You'll use this number in the next step when setting up call forwarding with your phone carrier.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -322,10 +326,82 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                   </p>
                 </div>
 
-                {/* Assigned ScamStop number */}
+                {/* Assigned ScamStop number — prominent display */}
+                <div className="rounded-lg border border-primary/20 bg-primary-glow/30 p-5">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                    Your assigned ScamStop number
+                  </p>
+                  {systemNumber ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-wide font-mono">
+                        {systemNumber}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCopyNumber}
+                        className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                        aria-label="Copy number"
+                        data-testid="button-copy-number"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4 text-success" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Your ScamStop number will be assigned shortly. Check your email or contact the beta coordinator.
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-3">
+                    This is the destination number you will forward your calls to.
+                  </p>
+                </div>
+
+                {/* Explanation */}
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Save or copy this number. In the next step, you'll set up your phone carrier's call-forwarding feature to forward calls from your protected number{" "}
+                  <span className="font-medium text-foreground">({protectedPhone})</span> to this ScamStop number.
+                </p>
+
+                {/* Continue to forwarding setup */}
+                <Button
+                  variant="cta"
+                  size="lg"
+                  className="w-full"
+                  onClick={handleContinueToForwarding}
+                  data-testid="button-continue-to-forwarding"
+                >
+                  Continue to forwarding setup
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* =========================================== */}
+        {/* Step 3: Turn On Call Forwarding             */}
+        {/* =========================================== */}
+        {step === 3 && (
+          <Card className="shadow-elevated border-border/60 animate-fade-in-up">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg sm:text-xl font-semibold text-foreground">
+                Turn on call forwarding
+              </CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                Use your carrier's call-forwarding feature to forward your protected number to the assigned ScamStop number below.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* ScamStop number reminder */}
                 <div className="rounded-lg border border-border bg-secondary/40 p-4">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                    Your assigned ScamStop number
+                    Forward calls to this number
                   </p>
                   {systemNumber ? (
                     <div className="flex items-center gap-3">
@@ -348,7 +424,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Your ScamStop number will be assigned shortly. Check your email or contact the beta coordinator.
+                      Number pending — check your email or contact the beta coordinator.
                     </p>
                   )}
                 </div>
@@ -381,7 +457,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                         3
                       </span>
                       <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">
-                        Forward calls to the <span className="font-medium text-foreground">ScamStop number</span> shown above.
+                        Set the forwarding destination to the <span className="font-medium text-foreground">ScamStop number</span> shown above.
                       </p>
                     </div>
                   </div>
@@ -389,7 +465,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                   <div className="rounded-lg border border-border/60 bg-accent/30 p-3 mt-2">
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       <span className="font-medium text-foreground">Tip:</span> On most phones you can enable call forwarding in{" "}
-                      <span className="font-medium text-foreground">Settings → Phone → Call Forwarding</span>, or by dialing{" "}
+                      <span className="font-medium text-foreground">Settings &rarr; Phone &rarr; Call Forwarding</span>, or by dialing{" "}
                       <span className="font-mono font-medium text-foreground">*72</span> followed by the ScamStop number. Contact your carrier if you need help.
                     </p>
                   </div>
@@ -411,10 +487,10 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
           </Card>
         )}
 
-        {/* ================= */}
-        {/* Step 3: Success   */}
-        {/* ================= */}
-        {step === 3 && (
+        {/* ========================= */}
+        {/* Step 4: Ready / Success    */}
+        {/* ========================= */}
+        {step === 4 && (
           <Card
             className="shadow-elevated border-success/30 animate-fade-in-up"
             data-testid="status-success"
@@ -437,6 +513,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                 <div className="w-full max-w-xs space-y-3 mb-8">
                   {[
                     "Beta account created",
+                    "ScamStop number assigned",
                     "Call forwarding configured",
                     "Ready for first test call",
                   ].map((item, i) => (
