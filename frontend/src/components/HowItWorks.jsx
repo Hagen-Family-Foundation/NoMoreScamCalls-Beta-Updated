@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { UserPlus, MessageSquare, ShieldCheck } from "lucide-react";
+import { UserPlus, PhoneForwarded, ShieldCheck } from "lucide-react";
 
 const steps = [
   {
@@ -9,14 +9,14 @@ const steps = [
     description: "Tell us who you are and which phone number you want protected.",
   },
   {
-    icon: MessageSquare,
-    title: "Verify your forwarding number",
-    description: "We send a short code to confirm the forwarding phone belongs to you.",
+    icon: PhoneForwarded,
+    title: "Set up call forwarding",
+    description: "Forward your protected number to the assigned ScamStop number using your carrier's call-forwarding feature.",
   },
   {
     icon: ShieldCheck,
-    title: "Start testing protection",
-    description: "Once verified, your beta setup is ready for call-protection testing.",
+    title: "Ready for your first test call",
+    description: "Once forwarding is set up, we'll place a test call to confirm ScamStop is screening calls correctly.",
   },
 ];
 

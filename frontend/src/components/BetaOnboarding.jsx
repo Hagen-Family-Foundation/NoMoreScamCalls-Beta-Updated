@@ -1,11 +1,10 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { StepProgress } from "@/components/StepProgress";
-import { createBetaAccount, sendVerificationCode, confirmVerificationCode } from "@/lib/api";
+import { createBetaAccount } from "@/lib/api";
 import {
   Loader2,
   CheckCircle2,
@@ -15,7 +14,9 @@ import {
   Mail,
   User,
   ArrowRight,
-  Send,
+  PhoneForwarded,
+  Copy,
+  Check,
   RefreshCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,34 +26,26 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function isValidCode(code) {
-  return /^\d{6}$/.test(code);
-}
-
 export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, ref) {
-  // App state
-  const [step, setStep] = useState(1); // 1=info, 2=verify, 3=ready
+  // App state — 1=info, 2=forwarding setup, 3=ready
+  const [step, setStep] = useState(1);
   const [subscriberId, setSubscriberId] = useState(null);
   const [subscriberToken, setSubscriberToken] = useState(null);
+  const [systemNumber, setSystemNumber] = useState(null);
   const [sessionLost, setSessionLost] = useState(false);
 
-  // Form fields
+  // Form fields (only 3 fields now)
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [protectedPhone, setProtectedPhone] = useState("");
-  const [forwardingPhone, setForwardingPhone] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
 
   // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [codeSent, setCodeSent] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Validation errors
   const [fieldErrors, setFieldErrors] = useState({});
-
-  // OTP input refs
-  const codeInputRef = useRef(null);
 
   // Validate step 1 form
   const validateForm = useCallback(() => {
@@ -61,10 +54,9 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
     if (!email.trim()) errors.email = "Email is required.";
     else if (!isValidEmail(email)) errors.email = "Please enter a valid email address.";
     if (!protectedPhone.trim()) errors.protectedPhone = "Protected phone number is required.";
-    if (!forwardingPhone.trim()) errors.forwardingPhone = "Forwarding phone number is required.";
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
-  }, [fullName, email, protectedPhone, forwardingPhone]);
+  }, [fullName, email, protectedPhone]);
 
   // Step 1: Create beta account
   const handleCreateAccount = async (e) => {
@@ -78,10 +70,10 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
         fullName: fullName.trim(),
         email: email.trim(),
         protectedPhone: protectedPhone.trim(),
-        forwardingPhone: forwardingPhone.trim(),
       });
       setSubscriberId(result.subscriberId);
       setSubscriberToken(result.subscriberToken);
+      setSystemNumber(result.systemNumber);
       setStep(2);
     } catch (err) {
       setError(err.message);
@@ -90,61 +82,28 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
     }
   };
 
-  // Step 2a: Send verification code
-  const handleSendCode = async () => {
-    setError("");
-    if (!subscriberId || !subscriberToken) {
-      setSessionLost(true);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await sendVerificationCode({ subscriberId, subscriberToken });
-      setCodeSent(true);
-      setTimeout(() => codeInputRef.current?.focus(), 100);
-    } catch (err) {
-      if (err.message.includes("session expired") || err.message.includes("missing_token")) {
-        setSessionLost(true);
-      } else {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+  // Step 2: Tester confirms they completed forwarding
+  const handleForwardingConfirmed = () => {
+    setStep(3);
   };
 
-  // Step 2b: Confirm verification code
-  const handleConfirmCode = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!isValidCode(verificationCode)) {
-      setError("Please enter a valid 6-digit verification code.");
-      return;
-    }
-
-    if (!subscriberId || !subscriberToken) {
-      setSessionLost(true);
-      return;
-    }
-
-    setLoading(true);
+  // Copy number to clipboard
+  const handleCopyNumber = async () => {
+    const number = systemNumber || "Number pending";
     try {
-      await confirmVerificationCode({
-        subscriberId,
-        subscriberToken,
-        code: verificationCode.trim(),
-      });
-      setStep(3);
+      await navigator.clipboard.writeText(number);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      if (err.message.includes("session expired") || err.message.includes("missing_token")) {
-        setSessionLost(true);
-      } else {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
+      // Fallback for older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = number;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -153,14 +112,13 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
     setStep(1);
     setSubscriberId(null);
     setSubscriberToken(null);
+    setSystemNumber(null);
     setSessionLost(false);
     setFullName("");
     setEmail("");
     setProtectedPhone("");
-    setForwardingPhone("");
-    setVerificationCode("");
     setError("");
-    setCodeSent(false);
+    setCopied(false);
     setFieldErrors({});
     setLoading(false);
   };
@@ -196,7 +154,9 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
         {/* Step Progress */}
         <StepProgress currentStep={step} />
 
+        {/* ===================== */}
         {/* Step 1: Beta Info Form */}
+        {/* ===================== */}
         {step === 1 && (
           <Card className="shadow-elevated border-border/60 animate-fade-in-up">
             <CardHeader className="pb-4">
@@ -204,7 +164,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                 Beta setup
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                Use the phone numbers you want to test with during the beta.
+                Enter the phone number you want protected during the beta.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -302,39 +262,6 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                   )}
                 </div>
 
-                {/* Forwarding phone */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="forwarding-phone" className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-muted-foreground" />
-                    Forwarding phone number
-                  </Label>
-                  <Input
-                    id="forwarding-phone"
-                    data-testid="input-forwarding-phone"
-                    type="tel"
-                    placeholder="(555) 987-6543"
-                    value={forwardingPhone}
-                    onChange={(e) => {
-                      setForwardingPhone(e.target.value);
-                      if (fieldErrors.forwardingPhone) setFieldErrors((p) => ({ ...p, forwardingPhone: "" }));
-                    }}
-                    className={cn(
-                      "h-11",
-                      fieldErrors.forwardingPhone && "border-destructive focus-visible:ring-destructive"
-                    )}
-                    autoComplete="tel"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    The phone that should ring after ScamStop screens the call.
-                  </p>
-                  {fieldErrors.forwardingPhone && (
-                    <p className="text-xs text-destructive flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {fieldErrors.forwardingPhone}
-                    </p>
-                  )}
-                </div>
-
                 {/* Error message */}
                 {error && (
                   <div
@@ -372,152 +299,121 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
           </Card>
         )}
 
-        {/* Step 2: Verification */}
+        {/* ================================= */}
+        {/* Step 2: Forwarding Setup Instructions */}
+        {/* ================================= */}
         {step === 2 && (
           <Card className="shadow-elevated border-border/60 animate-fade-in-up">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg sm:text-xl font-semibold text-foreground">
-                Verify your forwarding number
+                Set up call forwarding
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                We need to confirm the forwarding number before calls can be routed to it.
+                Forward your protected number to the ScamStop system so we can screen incoming calls.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-5">
-                {!codeSent ? (
-                  /* Send code state */
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/60">
-                      <Phone className="w-5 h-5 text-accent-foreground flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Forwarding number</p>
-                        <p className="text-sm text-muted-foreground">{forwardingPhone}</p>
-                      </div>
-                    </div>
+              <div className="space-y-6">
+                {/* Account created confirmation */}
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-success-muted">
+                  <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-success font-medium">
+                    Beta account created successfully.
+                  </p>
+                </div>
 
-                    <p className="text-sm text-muted-foreground">
-                      We'll send a 6-digit verification code to your forwarding phone number.
-                    </p>
-
-                    {/* Error */}
-                    {error && (
-                      <div
-                        data-testid="status-verification"
-                        className="flex items-start gap-2 p-3 rounded-lg bg-destructive/5 border border-destructive/20"
+                {/* Assigned ScamStop number */}
+                <div className="rounded-lg border border-border bg-secondary/40 p-4">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                    Your assigned ScamStop number
+                  </p>
+                  {systemNumber ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl sm:text-2xl font-semibold text-foreground tracking-wide font-mono">
+                        {systemNumber}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCopyNumber}
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        aria-label="Copy number"
                       >
-                        <AlertCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-destructive">{error}</p>
-                      </div>
-                    )}
+                        {copied ? (
+                          <Check className="w-4 h-4 text-success" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Your ScamStop number will be assigned shortly. Check your email or contact the beta coordinator.
+                    </p>
+                  )}
+                </div>
 
-                    <Button
-                      variant="cta"
-                      size="lg"
-                      className="w-full"
-                      onClick={handleSendCode}
-                      disabled={loading}
-                      data-testid="button-send-verification-code"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Sending code...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 mr-1" />
-                          Send verification code
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  /* Confirm code state */
-                  <form onSubmit={handleConfirmCode} className="space-y-4">
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-success-muted">
-                      <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-success">
-                        We sent a verification code to your forwarding phone number.
+                {/* Forwarding instructions */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-foreground">
+                    How to set up forwarding
+                  </h4>
+                  <div className="space-y-2.5">
+                    <div className="flex items-start gap-3">
+                      <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-accent text-accent-foreground text-xs font-medium">
+                        1
+                      </span>
+                      <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">
+                        Open the <span className="font-medium text-foreground">Phone</span> app on your device or contact your carrier.
                       </p>
                     </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="verification-code">Verification code</Label>
-                      <Input
-                        ref={codeInputRef}
-                        id="verification-code"
-                        data-testid="input-verification-code"
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={6}
-                        placeholder="000000"
-                        value={verificationCode}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                          setVerificationCode(val);
-                        }}
-                        className="h-12 text-center text-lg font-medium tracking-[0.3em] font-mono"
-                        autoComplete="one-time-code"
-                      />
-                      <p className="text-xs text-muted-foreground">Enter the 6-digit code</p>
+                    <div className="flex items-start gap-3">
+                      <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-accent text-accent-foreground text-xs font-medium">
+                        2
+                      </span>
+                      <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">
+                        Set up <span className="font-medium text-foreground">call forwarding</span> on your protected number{" "}
+                        <span className="font-medium text-foreground">({protectedPhone})</span>.
+                      </p>
                     </div>
+                    <div className="flex items-start gap-3">
+                      <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-accent text-accent-foreground text-xs font-medium">
+                        3
+                      </span>
+                      <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">
+                        Forward calls to the <span className="font-medium text-foreground">ScamStop number</span> shown above.
+                      </p>
+                    </div>
+                  </div>
 
-                    {/* Error */}
-                    {error && (
-                      <div
-                        data-testid="status-verification"
-                        className="flex items-start gap-2 p-3 rounded-lg bg-destructive/5 border border-destructive/20"
-                      >
-                        <AlertCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-destructive">{error}</p>
-                      </div>
-                    )}
+                  <div className="rounded-lg border border-border/60 bg-accent/30 p-3 mt-2">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      <span className="font-medium text-foreground">Tip:</span> On most phones you can enable call forwarding in{" "}
+                      <span className="font-medium text-foreground">Settings → Phone → Call Forwarding</span>, or by dialing{" "}
+                      <span className="font-mono font-medium text-foreground">*72</span> followed by the ScamStop number. Contact your carrier if you need help.
+                    </p>
+                  </div>
+                </div>
 
-                    <Button
-                      type="submit"
-                      variant="cta"
-                      size="lg"
-                      className="w-full"
-                      disabled={loading || verificationCode.length !== 6}
-                      data-testid="button-confirm-verification-code"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Verifying...
-                        </>
-                      ) : (
-                        <>
-                          Confirm code
-                          <ArrowRight className="w-4 h-4 ml-1" />
-                        </>
-                      )}
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-muted-foreground"
-                      onClick={() => {
-                        setCodeSent(false);
-                        setVerificationCode("");
-                        setError("");
-                      }}
-                      disabled={loading}
-                    >
-                      <RefreshCcw className="w-3.5 h-3.5 mr-1" />
-                      Resend code
-                    </Button>
-                  </form>
-                )}
+                {/* Confirm forwarding button */}
+                <Button
+                  variant="cta"
+                  size="lg"
+                  className="w-full"
+                  onClick={handleForwardingConfirmed}
+                  data-testid="button-confirm-forwarding"
+                >
+                  <PhoneForwarded className="w-4 h-4 mr-2" />
+                  I have turned on call forwarding
+                </Button>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Step 3: Success */}
+        {/* ================= */}
+        {/* Step 3: Success   */}
+        {/* ================= */}
         {step === 3 && (
           <Card
             className="shadow-elevated border-success/30 animate-fade-in-up"
@@ -531,25 +427,25 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">
-                  Beta protection is ready.
+                  Ready for first test call.
                 </h3>
                 <p className="text-sm text-muted-foreground mb-8 max-w-sm">
-                  Your beta account was created and your forwarding number was verified. You're ready for the next phase of testing.
+                  Your beta setup request has been received. We will place a test call to your protected number to confirm ScamStop is connected and screening calls correctly.
                 </p>
 
                 {/* Checklist */}
                 <div className="w-full max-w-xs space-y-3 mb-8">
                   {[
                     "Beta account created",
-                    "Forwarding number verified",
-                    "Protection ready for testing",
+                    "Call forwarding configured",
+                    "Ready for first test call",
                   ].map((item, i) => (
                     <div
                       key={i}
                       className="flex items-center gap-3 p-3 rounded-lg bg-success-muted animate-fade-in"
                       style={{ animationDelay: `${i * 150}ms` }}
                     >
-                      <CheckCircle2 className="w-4.5 h-4.5 text-success flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
                       <span className="text-sm font-medium text-foreground">{item}</span>
                     </div>
                   ))}
@@ -564,8 +460,8 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                   Done for now
                 </Button>
 
-                <p className="text-xs text-muted-foreground mt-4">
-                  We'll contact you with beta testing instructions and next steps.
+                <p className="text-xs text-muted-foreground mt-4 max-w-sm">
+                  We'll contact you with beta testing instructions and next steps, including your first test call.
                 </p>
               </div>
             </CardContent>

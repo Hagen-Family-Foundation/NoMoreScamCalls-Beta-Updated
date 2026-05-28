@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
-const stepLabels = ["Info", "Verify", "Ready"];
+const stepLabels = ["Info", "Forward", "Ready"];
 
 export const StepProgress = ({ currentStep }) => {
   return (

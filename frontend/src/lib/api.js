@@ -11,10 +11,6 @@ const API_BASE = "https://scamcop-api.smokey831831.workers.dev";
 const ENDPOINTS = {
   HEALTH: `${API_BASE}/health`,
   ONBOARDING: `${API_BASE}/subscriber/onboarding`,
-  VERIFY_START: (subscriberId) =>
-    `${API_BASE}/subscriber/${subscriberId}/forwarding/verify/start`,
-  VERIFY_CONFIRM: (subscriberId) =>
-    `${API_BASE}/subscriber/${subscriberId}/forwarding/verify/confirm`,
 };
 
 /**
@@ -26,13 +22,29 @@ function extractSubscriberData(data) {
     data.subscriber_id || data.subscriberId || data.id || null;
   const subscriberToken =
     data.subscriber_token || data.subscriberToken || data.token || null;
-  return { subscriberId, subscriberToken };
+
+  // Extract the assigned ScamStop/Telnyx forwarding number
+  const systemNumber =
+    data.system_number ||
+    data.systemNumber ||
+    data.telnyx_number ||
+    data.telnyxNumber ||
+    data.forwarding_number ||
+    data.forwardingNumber ||
+    data.assigned_number ||
+    data.assignedNumber ||
+    data.scamstop_number ||
+    data.scamstopNumber ||
+    null;
+
+  return { subscriberId, subscriberToken, systemNumber };
 }
 
 /**
  * Create beta subscriber account
+ * Only collects: name, email, protected phone number
  */
-export async function createBetaAccount({ fullName, email, protectedPhone, forwardingPhone }) {
+export async function createBetaAccount({ fullName, email, protectedPhone }) {
   let response;
   try {
     response = await fetch(ENDPOINTS.ONBOARDING, {
@@ -42,7 +54,6 @@ export async function createBetaAccount({ fullName, email, protectedPhone, forwa
         name: fullName,
         email: email,
         protected_phone_number: protectedPhone,
-        forwarding_target_number: forwardingPhone,
       }),
     });
   } catch (networkErr) {
@@ -64,7 +75,7 @@ export async function createBetaAccount({ fullName, email, protectedPhone, forwa
   }
 
   const data = await response.json();
-  const { subscriberId, subscriberToken } = extractSubscriberData(data);
+  const { subscriberId, subscriberToken, systemNumber } = extractSubscriberData(data);
 
   if (!subscriberId) {
     throw new Error(
@@ -78,80 +89,5 @@ export async function createBetaAccount({ fullName, email, protectedPhone, forwa
     );
   }
 
-  return { subscriberId, subscriberToken };
-}
-
-/**
- * Send verification code to forwarding number
- */
-export async function sendVerificationCode({ subscriberId, subscriberToken }) {
-  let response;
-  try {
-    response = await fetch(ENDPOINTS.VERIFY_START(subscriberId), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${subscriberToken}`,
-      },
-    });
-  } catch (networkErr) {
-    throw new Error(
-      "We could not send the verification code. Please check your connection or contact the beta coordinator."
-    );
-  }
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.error === "feature_disabled") {
-      throw new Error("This beta feature is not active yet.");
-    }
-    if (errorData.error === "missing_token") {
-      throw new Error("Your beta session expired. Please restart setup.");
-    }
-    throw new Error(
-      errorData.message ||
-      errorData.error ||
-      "We could not send the verification code. Please check the forwarding number or contact the beta coordinator."
-    );
-  }
-
-  return await response.json();
-}
-
-/**
- * Confirm verification code
- */
-export async function confirmVerificationCode({ subscriberId, subscriberToken, code }) {
-  let response;
-  try {
-    response = await fetch(ENDPOINTS.VERIFY_CONFIRM(subscriberId), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${subscriberToken}`,
-      },
-      body: JSON.stringify({ code }),
-    });
-  } catch (networkErr) {
-    throw new Error(
-      "That code did not verify. Please check your connection and try again."
-    );
-  }
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.error === "feature_disabled") {
-      throw new Error("This beta feature is not active yet.");
-    }
-    if (errorData.error === "missing_token") {
-      throw new Error("Your beta session expired. Please restart setup.");
-    }
-    throw new Error(
-      errorData.message ||
-      errorData.error ||
-      "That code did not verify. Please check the code and try again."
-    );
-  }
-
-  return await response.json();
+  return { subscriberId, subscriberToken, systemNumber };
 }
