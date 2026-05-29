@@ -92,6 +92,17 @@ const listeners = []
 
 let memoryState = { toasts: [] }
 
+function subscribeToastListener(listener) {
+  listeners.push(listener);
+
+  return () => {
+    const listenerIndex = listeners.indexOf(listener);
+    if (listenerIndex > -1) {
+      listeners.splice(listenerIndex, 1);
+    }
+  };
+}
+
 function dispatch(action) {
   memoryState = reducer(memoryState, action)
   listeners.forEach((listener) => {
@@ -132,19 +143,10 @@ function toast({
 
 function useToast() {
   const [state, setState] = React.useState(memoryState)
-  const setStateRef = React.useRef(setState)
-  setStateRef.current = setState
 
   React.useEffect(() => {
-    const listener = (next) => setStateRef.current(next)
-    listeners.push(listener)
-    return () => {
-      const i = listeners.indexOf(listener)
-      if (i > -1) {
-        listeners.splice(i, 1)
-      }
-    };
-  }, [])
+    return subscribeToastListener(setState);
+  }, [setState])
 
   return {
     ...state,
