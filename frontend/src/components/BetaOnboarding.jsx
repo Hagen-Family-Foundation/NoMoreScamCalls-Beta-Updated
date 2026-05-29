@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +71,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
   const resultState = deriveResultState(statusLabel, firstTestCallStatus);
 
   // ── Validation ──
-  const validateForm = useCallback(() => {
+  const validateForm = () => {
     const errors = {};
     if (!fullName.trim()) errors.fullName = "Full name is required.";
     if (!email.trim()) errors.email = "Email is required.";
@@ -79,7 +79,7 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
     if (!protectedPhone.trim()) errors.protectedPhone = "Protected phone number is required.";
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
-  }, [fullName, email, protectedPhone]);
+  };
 
   // ── Step 1 → Step 2 ──
   const handleCreateAccount = async (e) => {
@@ -490,16 +490,16 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                   <h4 className="text-sm font-medium text-foreground">How to set up forwarding</h4>
                   <div className="space-y-2.5">
                     {[
-                      "Open your phone carrier's call-forwarding settings or use your carrier's forwarding code.",
-                      <>Set your protected number <span className="font-medium text-foreground">({protectedPhone})</span> to forward calls to the assigned number shown above.</>,
-                      "Return to this page when forwarding is turned on.",
-                      <>Click <span className="font-medium text-foreground">"I have turned on call forwarding"</span> below.</>,
-                    ].map((text, i) => (
-                      <div key={i} className="flex items-start gap-3">
+                      { id: "open-carrier-settings", number: 1, text: "Open your phone carrier's call-forwarding settings or use your carrier's forwarding code." },
+                      { id: "set-forwarding-target", number: 2, text: <>Set your protected number <span className="font-medium text-foreground">({protectedPhone})</span> to forward calls to the assigned number shown above.</> },
+                      { id: "return-to-page", number: 3, text: "Return to this page when forwarding is turned on." },
+                      { id: "confirm-forwarding", number: 4, text: <>Click <span className="font-medium text-foreground">"I have turned on call forwarding"</span> below.</> },
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-start gap-3">
                         <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-accent text-accent-foreground text-xs font-medium">
-                          {i + 1}
+                          {item.number}
                         </span>
-                        <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">{text}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">{item.text}</p>
                       </div>
                     ))}
                   </div>
@@ -554,10 +554,15 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                 )}
 
                 <div className="w-full max-w-xs space-y-3 mb-6">
-                  {["Beta account created", "Assigned forwarding number provided", "Call forwarding marked as turned on", "First test call pending"].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-success-muted animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
+                  {[
+                    { id: "account-created", label: "Beta account created" },
+                    { id: "assigned-number", label: "Assigned forwarding number provided" },
+                    { id: "forwarding-confirmed", label: "Call forwarding marked as turned on" },
+                    { id: "test-call-pending", label: "First test call pending" },
+                  ].map((item, i) => (
+                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-success-muted animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
                       <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
-                      <span className="text-sm font-medium text-foreground">{item}</span>
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
                     </div>
                   ))}
                 </div>
@@ -625,10 +630,16 @@ export const BetaOnboarding = React.forwardRef(function BetaOnboarding(props, re
                 </p>
 
                 <div className="w-full max-w-xs space-y-3 mb-6">
-                  {["Beta account created", "Assigned forwarding number provided", "Call forwarding confirmed", "First test call completed", "Protection active"].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-success-muted animate-fade-in" style={{ animationDelay: `${i * 120}ms` }}>
+                  {[
+                    { id: "account-created", label: "Beta account created" },
+                    { id: "assigned-number", label: "Assigned forwarding number provided" },
+                    { id: "forwarding-confirmed", label: "Call forwarding confirmed" },
+                    { id: "test-call-completed", label: "First test call completed" },
+                    { id: "protection-active", label: "Protection active" },
+                  ].map((item, i) => (
+                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-success-muted animate-fade-in" style={{ animationDelay: `${i * 120}ms` }}>
                       <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
-                      <span className="text-sm font-medium text-foreground">{item}</span>
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
                     </div>
                   ))}
                 </div>
