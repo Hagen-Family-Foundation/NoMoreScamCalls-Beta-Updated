@@ -1,6 +1,6 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Info } from "lucide-react";
+import { Shield, Info, Mail } from "lucide-react";
 
 export const TrustFooter = () => {
   return (
@@ -22,6 +22,16 @@ export const TrustFooter = () => {
             <Info className="w-3 h-3" />
             <span>Questions? Contact the beta coordinator.</span>
           </div>
+
+          {/* Support email */}
+          <a
+            href="mailto:support@nomorescamcalls.com"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="link-support-email"
+          >
+            <Mail className="w-3 h-3" />
+            <span>support@nomorescamcalls.com</span>
+          </a>
         </div>
       </div>
     </footer>
