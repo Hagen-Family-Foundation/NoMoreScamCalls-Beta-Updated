@@ -132,14 +132,16 @@ function toast({
 
 function useToast() {
   const [state, setState] = React.useState(memoryState)
+  const setStateRef = React.useRef(setState)
+  setStateRef.current = setState
 
   React.useEffect(() => {
-    const listener = (next) => setState(next)
+    const listener = (next) => setStateRef.current(next)
     listeners.push(listener)
     return () => {
-      const index = listeners.indexOf(listener)
-      if (index > -1) {
-        listeners.splice(index, 1)
+      const i = listeners.indexOf(listener)
+      if (i > -1) {
+        listeners.splice(i, 1)
       }
     };
   }, [])
