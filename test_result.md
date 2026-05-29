@@ -122,6 +122,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [4-STEP VERSION] Page loads successfully. Header with 'NoMoreScamCalls' and 'Beta' badge visible. All sections render correctly with 4-step process."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] Page loads successfully at http://localhost:3000. All sections render correctly. No console errors. WebSocket errors are expected (dev hot reload). CORS error expected (external API not accessible)."
 
   - task: "Hero Section - Updated content"
     implemented: true
@@ -137,6 +140,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [COMPREHENSIVE SPEC TEST] Hero section FULLY verified against latest spec: (1) Private Beta badge present, (2) Headline 'Help us test a smarter way to stop scam calls.' exact match, (3) Body text contains EXACT required content: 'Enter the phone number you want protected, receive your assigned ScamStop forwarding number, turn on call forwarding with your carrier, and get ready for your first test call.', (4) 'Start beta setup' CTA button present and functional (scrolls to form), (5) Reassurance line contains EXACT required content: 'Email scanning, SMS scanning, web reputation tools, and Skeeter features are not active in this beta.' All requirements met."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] ALL HERO ELEMENTS VERIFIED: (1) Private Beta badge PRESENT ✅, (2) Headline 'Help us test a smarter way to stop scam calls.' EXACT MATCH ✅, (3) Body text: 'NoMoreScamCalls is opening a private beta for early testers. Enter the phone number you want protected, receive your assigned forwarding number, turn on call forwarding with your carrier, and get ready for your first test call.' - Contains 'receive your assigned forwarding number' ✅ and 'turn on call forwarding' ✅, (4) 'Start beta setup' CTA button PRESENT and scrolls to form ✅, (5) Reassurance text 'Takes about 2 minutes. No complicated setup required.' EXACT MATCH ✅. All requirements from review request met."
 
   - task: "How It Works - 4 step cards with specific content"
     implemented: true
@@ -155,6 +161,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [COMPREHENSIVE SPEC TEST] How It Works section FULLY verified against latest spec: Exactly 4 step cards present with EXACT required content: Step 1: 'Enter your beta info' — 'Tell us who you are and which phone number you want protected.' ✅, Step 2: 'Receive your ScamStop forwarding number' — 'assigned ScamStop number your protected phone should forward to' ✅, Step 3: 'Turn on call forwarding' — 'assigned ScamStop number shown on this page' ✅, Step 4: 'Ready for your first test call' — 'I have turned on call forwarding' and 'first test call' ✅. All requirements met."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] ALL 4 STEPS VERIFIED WITH EXACT TITLES: Step 1: 'Enter your beta info' - Description: 'Tell us who you are and which phone number you want protected.' ✅, Step 2: 'Receive your assigned forwarding number' - Description: 'After your beta account is created, we'll provide the number your protected phone should forward to.' ✅, Step 3: 'Turn on call forwarding' - Description: 'Use your carrier's call-forwarding feature to forward your protected phone number to the assigned number shown on this page.' ✅, Step 4: 'Ready for your first test call' - Description: 'After forwarding is turned on, click \"I have turned on call forwarding.\" We'll place a first test call to confirm the system is connected correctly.' ✅. All requirements from review request met."
 
   - task: "Step Progress Indicator - 4 steps with correct labels"
     implemented: true
@@ -173,6 +182,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [4-STEP VERSION] VERIFIED: Step progress indicator shows exactly 4 steps with labels 'Info', 'Number', 'Forward', 'Ready'. Step 1 ('Info') is active with teal color. Steps 2, 3, 4 are inactive with gray color. 3 connector lines visible between the 4 circles. All requirements met."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] PROGRESS INDICATOR VERIFIED: Exactly 4 steps with labels 'Info', 'Assigned number', 'Forwarding', 'Test call' ✅. data-testid='status-current-step' present ✅. Current step is 1 (Info - active with teal color) ✅. Steps 2, 3, 4 are inactive with gray color ✅. All 4 step labels are visible and readable ✅. All requirements from review request met."
 
   - task: "Form Fields - Only 3 fields (no forwarding phone)"
     implemented: true
@@ -194,6 +206,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [COMPREHENSIVE SPEC TEST] Form fields FULLY verified against latest spec: (1) Exactly 3 fields present with correct data-testid attributes: input-full-name ✅, input-email ✅, input-protected-phone ✅, (2) Submit button present: button-create-beta-account ✅, (3) NO forwarding phone number field ✅, (4) Form helper text contains EXACT required content: 'Enter the phone number you want protected during the beta. We'll provide the ScamStop forwarding number after your beta account is created.' ✅. All requirements met."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] FORM FIELDS VERIFIED: (1) Exactly 3 fields present: data-testid='input-full-name' ✅, data-testid='input-email' ✅, data-testid='input-protected-phone' ✅, (2) Submit button: data-testid='button-create-beta-account' ✅, (3) NO forwarding phone field (input-forwarding-phone does NOT exist) ✅, (4) Form helper text: 'Enter the phone number you want protected during the beta. We'll provide your assigned forwarding number after your beta account is created.' - Contains 'assigned forwarding number after your beta account is created' ✅. All requirements from review request met."
 
   - task: "Form Validation - Empty form (3 errors only)"
     implemented: true
@@ -212,6 +227,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [4-STEP VERSION] VERIFIED: Submitting empty form shows exactly 3 validation errors: 'Full name is required.', 'Email is required.', 'Protected phone number is required.'. No 4th field error. Validation working correctly."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] FORM VALIDATION VERIFIED: (1) Empty form submission shows exactly 3 validation errors ✅: 'Full name is required.' ✅, 'Email is required.' ✅, 'Protected phone number is required.' ✅, (2) Invalid email (invalid-email) shows email validation error: 'Please enter a valid email address.' ✅. All requirements from review request met. Screenshot saved: validation-errors.png."
 
   - task: "Footer - Simplified content (no disclaimers)"
     implemented: true
@@ -230,6 +248,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [COMPREHENSIVE SPEC TEST] Footer FULLY verified against latest spec: ALL 5 required items present: (1) 'Private beta' ✅, (2) 'Call protection setup only' ✅, (3) 'Email scanning inactive' ✅, (4) 'SMS scanning inactive' ✅, (5) 'Skeeter inactive' ✅, PLUS (6) 'Questions? Contact the beta coordinator.' ✅. NOTE: Previous test reports were INCORRECT - the footer DOES have all 5 disclaimer items as required by the spec. All requirements met."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] FOOTER VERIFIED: ONLY 'NoMoreScamCalls' brand ✅ and 'Questions? Contact the beta coordinator.' ✅. Complete footer text: 'NoMoreScamCallsQuestions? Contact the beta coordinator.' NO disclaimers present ✅. All requirements from review request met."
 
   - task: "Mobile Responsiveness - 390x844 viewport"
     implemented: true
@@ -248,6 +269,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [4-STEP VERSION] VERIFIED: All elements visible and readable at 390x844 mobile viewport. Header visible, all 4 step cards in How It Works section visible, step progress indicator with all 4 steps (Info/Number/Forward/Ready) fits properly on mobile, all 3 form fields visible and interactive, footer visible. Mobile responsiveness working perfectly."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] MOBILE RESPONSIVENESS VERIFIED (390x844): All 4 progress step labels readable and visible ✅: 'Info' ✅, 'Assigned number' ✅, 'Forwarding' ✅, 'Test call' ✅. All 3 form fields visible and usable ✅: Full name input ✅, Email input ✅, Protected phone input ✅. All requirements from review request met. Screenshot saved: mobile-view.png."
 
   - task: "Form Submission - API error handling"
     implemented: true
@@ -263,13 +287,16 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ [4-STEP VERSION] VERIFIED: Form submission with valid data (John Smith, john.smith@example.com, (555) 123-4567) triggers API call. As expected, API at https://scamcop-api.smokey831831.workers.dev is not reachable. Error handling works correctly, displaying error message: 'Something went wrong creating your beta account. Please check your connection and try again.' Error shown in styled alert box with proper formatting."
+        - working: true
+          agent: "testing"
+          comment: "✅ [FINAL VERIFICATION 2025-05-29] API ERROR HANDLING VERIFIED: Form submission with valid data (John Smith, john.smith@example.com, (555) 123-4567) triggers API call to https://scamcop-api.smokey831831.workers.dev/subscriber/onboarding. As expected, API is not reachable (CORS error). Error handling works correctly, displaying clean error message: 'We could not reach the beta server. Please check your connection and try again.' ✅. Error shown in styled alert box with proper formatting ✅. All requirements from review request met. Screenshot saved: api-error.png."
 
 metadata:
   created_by: "testing_agent"
-  version: "4.0"
-  test_sequence: 4
+  version: "5.0"
+  test_sequence: 5
   run_ui: true
-  last_test_date: "2025-05-28"
+  last_test_date: "2025-05-29"
 
 test_plan:
   current_focus: []
@@ -286,3 +313,5 @@ agent_communication:
       message: "✅ [4-STEP VERSION TEST] COMPREHENSIVE TESTING COMPLETED - All 7 tests passed successfully. The NoMoreScamCalls beta onboarding landing page has been successfully updated to 4-step process. VERIFIED: (1) How It Works section has exactly 4 step cards with correct titles and descriptions - Step 1: 'Enter your beta info', Step 2: 'Receive your ScamStop forwarding number' (mentions ScamStop/Telnyx number and call forwarding setup), Step 3: 'Turn on call forwarding' (mentions carrier's call-forwarding feature and assigned ScamStop number), Step 4: 'Ready for your first test call' (mentions 'I have turned on call forwarding' and test call). (2) Step Progress Indicator shows exactly 4 steps with labels 'Info', 'Number', 'Forward', 'Ready' - Step 1 active (teal), Steps 2-4 inactive (gray), 3 connector lines visible. (3) Form has only 3 fields (name, email, protected phone) - NO forwarding phone field. (4) Form validation shows exactly 3 errors when empty. (5) Footer simplified - only brand name and 'Questions? Contact the beta coordinator.' text, NO disclaimers. (6) Mobile responsiveness at 390x844 - all 4 steps visible and readable, progress indicator fits properly. (7) API error handling works correctly (expected behavior). No critical issues found. 10 screenshots captured showing all requirements met."
     - agent: "testing"
       message: "✅ [COMPREHENSIVE SPEC TEST - FINAL] ALL REQUIREMENTS VERIFIED - Comprehensive testing completed against the latest spec. ALL 10 test categories PASSED: (1) Hero Section: Private Beta badge ✅, headline exact match ✅, body text with EXACT required content ✅, 'Start beta setup' CTA ✅, reassurance line with EXACT required content ✅. (2) How It Works: Exactly 4 step cards with EXACT required titles and descriptions ✅. (3) Step Progress Indicator: 4 steps (Info/Number/Forward/Ready) ✅. (4) Form: 3 fields only (name/email/protected phone) with correct data-testid attributes ✅, form helper text exact match ✅. (5) Form Validation: Exactly 3 errors on empty submit ✅. (6) Footer: ALL 5 required items (Private beta, Call protection setup only, Email scanning inactive, SMS scanning inactive, Skeeter inactive) PLUS contact text ✅. NOTE: Previous test reports incorrectly stated footer had NO disclaimers - this was WRONG. Footer DOES have all 5 required items. (7) Negative Tests: NO forwarding phone field ✅, NO SMS verification ✅, NO 'Send code' button ✅, NO Stripe/payment elements ✅. (8) data-testid attributes: All present ✅. (9) Mobile Responsiveness (390x844): All elements visible and functional ✅. (10) 'Start beta setup' scrolls to form ✅. (11) API error handling: Works correctly ✅. RESULT: 100% COMPLIANT with spec. No critical issues. No minor issues. Ready for production."
+    - agent: "testing"
+      message: "✅ [FINAL VERIFICATION - 2025-05-29] COMPREHENSIVE TESTING COMPLETED AGAINST NEW REVIEW REQUEST - ALL 11 TEST CATEGORIES PASSED: (1) Hero Section: Private Beta badge ✅, headline 'Help us test a smarter way to stop scam calls.' ✅, body mentions 'receive your assigned forwarding number, turn on call forwarding' ✅, 'Start beta setup' CTA scrolls to form ✅, reassurance 'Takes about 2 minutes. No complicated setup required.' ✅. (2) How It Works: Exactly 4 steps - Step 1: 'Enter your beta info' ✅, Step 2: 'Receive your assigned forwarding number' ✅, Step 3: 'Turn on call forwarding' ✅, Step 4: 'Ready for your first test call' ✅. (3) Progress Indicator: 4 steps with labels 'Info', 'Assigned number', 'Forwarding', 'Test call' ✅, data-testid='status-current-step' present ✅. (4) Signup Form: 3 fields only (input-full-name, input-email, input-protected-phone) ✅, button-create-beta-account ✅, NO forwarding phone field ✅, form helper mentions 'assigned forwarding number after your beta account is created' ✅. (5) Form Validation: Empty form shows exactly 3 errors ✅, invalid email shows email error ✅. (6) Footer: ONLY 'NoMoreScamCalls' brand + 'Questions? Contact the beta coordinator.' ✅. (7) NEGATIVE TESTS - ALL PASSED: NO 'ScamStop' (0 occurrences) ✅, NO 'Telnyx' (0 occurrences) ✅, NO 'Skeeter' (0 occurrences) ✅, NO 'backend' (0 occurrences) ✅, NO forwarding phone input ✅, NO SMS verification ✅, NO Stripe/payment ✅, NO email scanning mentions ✅, NO SMS scanning mentions ✅, NO web reputation mentions ✅. (8) data-testid attributes: All present on step 1 ✅. (9) Mobile (390x844): All 4 progress labels readable ✅, form usable ✅. (10) API error handling: Shows clean message 'We could not reach the beta server. Please check your connection and try again.' ✅. RESULT: 100% COMPLIANT with review request. No critical issues. No minor issues. Ready for production."

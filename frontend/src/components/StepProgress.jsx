@@ -2,11 +2,15 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
-const stepLabels = ["Info", "Number", "Forward", "Ready"];
+const stepLabels = ["Info", "Assigned number", "Forwarding", "Test call"];
 
 export const StepProgress = ({ currentStep }) => {
   return (
-    <div className="flex items-center justify-center gap-0 w-full max-w-sm mx-auto mb-8">
+    <div
+      className="flex items-center justify-center gap-0 w-full max-w-md mx-auto mb-8"
+      data-testid="status-current-step"
+      data-current-step={currentStep}
+    >
       {stepLabels.map((label, index) => {
         const stepNum = index + 1;
         const isComplete = currentStep > stepNum;
@@ -16,7 +20,6 @@ export const StepProgress = ({ currentStep }) => {
         return (
           <React.Fragment key={index}>
             <div className="flex flex-col items-center gap-1.5">
-              {/* Step circle */}
               <div
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-full text-xs font-medium transition-base",
@@ -31,10 +34,9 @@ export const StepProgress = ({ currentStep }) => {
                   stepNum
                 )}
               </div>
-              {/* Label */}
               <span
                 className={cn(
-                  "text-[11px] font-medium",
+                  "text-[10px] sm:text-[11px] font-medium whitespace-nowrap",
                   isComplete && "text-success",
                   isActive && "text-primary",
                   isUpcoming && "text-muted-foreground"
@@ -44,9 +46,8 @@ export const StepProgress = ({ currentStep }) => {
               </span>
             </div>
 
-            {/* Connector line */}
             {index < stepLabels.length - 1 && (
-              <div className="flex-1 mx-1.5 sm:mx-2 mb-5">
+              <div className="flex-1 mx-1 sm:mx-2 mb-5">
                 <div
                   className={cn(
                     "h-0.5 rounded-full transition-base",
