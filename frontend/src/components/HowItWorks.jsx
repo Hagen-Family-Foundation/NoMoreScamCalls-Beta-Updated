@@ -14,7 +14,7 @@ const STEPS = [
     icon: PhoneIncoming,
     title: "Receive your assigned forwarding number",
     description:
-      "After your beta account is created, we\u2019ll provide the number your protected phone should forward to.",
+      "After your beta account is created, you will then receive a system number that you will use to setup call forwarding.",
   },
   {
     id: "turn-on-forwarding",
