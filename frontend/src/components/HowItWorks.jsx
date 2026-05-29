@@ -21,7 +21,7 @@ const STEPS = [
     icon: PhoneForwarded,
     title: "Turn on call forwarding",
     description:
-      "Use your carrier\u2019s call-forwarding feature to forward your protected phone number to the assigned number shown on this page.",
+      "Use your carrier\u2019s call-forwarding feature to forward your personal phone number to the assigned number shown on this page.",
   },
   {
     id: "ready-test-call",
