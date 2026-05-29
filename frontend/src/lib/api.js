@@ -7,7 +7,6 @@
 
 const API_BASE = "https://scamcop-api.smokey831831.workers.dev";
 
-// Endpoint paths (adjust here if needed)
 const ENDPOINTS = {
   HEALTH: `${API_BASE}/health`,
   ONBOARDING: `${API_BASE}/subscriber/onboarding`,
@@ -19,9 +18,8 @@ const ENDPOINTS = {
     `${API_BASE}/subscriber/${subscriberId}/forwarding/first-test-call/retry`,
 };
 
-/**
- * User-facing status labels
- */
+/* ─── User-facing status labels ─── */
+
 export const STATUS_LABELS = {
   setup_not_started: "Setup not started",
   forwarding_number_assigned: "Forwarding number assigned",
@@ -46,106 +44,116 @@ export const STATUS_LABELS = {
   sent: "First test call started",
 };
 
+const SUCCESS_STATUSES = ["completed", "service_active", "first_test_call_completed", "active", "verified"];
+const STARTED_STATUSES = ["sent", "started", "first_test_call_sent", "first_test_call_started"];
+const FAILED_STATUSES = ["failed", "error", "needs_attention", "first_test_call_failed"];
+
 /**
- * Determine which state panel (4A/4B/4C/4D) to show from status
+ * Determine which state panel (4A/4B/4C/4D) to show from status.
  */
 export function deriveResultState(statusString, firstTestCallStatus) {
   const s = firstTestCallStatus || statusString;
-  if (!s) return "4A"; // default pending
-
-  // 4C: Success / service active
-  if (["completed", "service_active", "first_test_call_completed", "active", "verified"].includes(s)) {
-    return "4C";
-  }
-  // 4B: Test call started
-  if (["sent", "started", "first_test_call_sent", "first_test_call_started"].includes(s)) {
-    return "4B";
-  }
-  // 4D: Needs attention
-  if (["failed", "error", "needs_attention", "first_test_call_failed"].includes(s)) {
-    return "4D";
-  }
-  // 4A: Pending (default)
+  if (!s) return "4A";
+  if (SUCCESS_STATUSES.includes(s)) return "4C";
+  if (STARTED_STATUSES.includes(s)) return "4B";
+  if (FAILED_STATUSES.includes(s)) return "4D";
   return "4A";
 }
 
-/**
- * Defensively extract subscriber fields from response.
- */
+/* ─── Response field extraction helpers ─── */
+
+function pickFirst(data, ...keys) {
+  for (const key of keys) {
+    if (data[key] != null) return data[key];
+  }
+  return null;
+}
+
+function extractSubscriberId(data) {
+  return pickFirst(data, "subscriber_id", "subscriberId", "id");
+}
+
+function extractSubscriberToken(data) {
+  return pickFirst(data, "subscriber_token", "subscriberToken", "token");
+}
+
+function extractSystemNumber(data) {
+  return pickFirst(
+    data,
+    "telnyx_system_number", "telnyxSystemNumber",
+    "assigned_forwarding_number", "assignedForwardingNumber",
+    "system_number", "systemNumber",
+    "telnyx_number", "telnyxNumber",
+    "forwarding_number", "forwardingNumber",
+    "assigned_number", "assignedNumber"
+  );
+}
+
 function extractSubscriberData(data) {
-  const subscriberId =
-    data.subscriber_id || data.subscriberId || data.id || null;
-  const subscriberToken =
-    data.subscriber_token || data.subscriberToken || data.token || null;
-  const systemNumber =
-    data.telnyx_system_number ||
-    data.telnyxSystemNumber ||
-    data.assigned_forwarding_number ||
-    data.assignedForwardingNumber ||
-    data.system_number ||
-    data.systemNumber ||
-    data.telnyx_number ||
-    data.telnyxNumber ||
-    data.forwarding_number ||
-    data.forwardingNumber ||
-    data.assigned_number ||
-    data.assignedNumber ||
-    null;
-
-  return { subscriberId, subscriberToken, systemNumber };
+  return {
+    subscriberId: extractSubscriberId(data),
+    subscriberToken: extractSubscriberToken(data),
+    systemNumber: extractSystemNumber(data),
+  };
 }
 
-/**
- * Defensively extract activation/status from any response
- */
 function extractActivationData(data) {
-  const activation = data.activation || data.status || {};
-  const firstTestCallStatus =
-    data.first_test_call_status ||
-    data.firstTestCallStatus ||
-    activation.first_test_call_status ||
-    activation.firstTestCallStatus ||
-    null;
-  const statusString =
-    data.status_label ||
-    data.statusLabel ||
-    activation.status ||
-    activation.status_label ||
-    (typeof data.status === "string" ? data.status : null) ||
-    null;
+  const activation =
+    (typeof data.activation === "object" && data.activation) ||
+    (typeof data.status === "object" && data.status) ||
+    {};
 
-  return { activation, firstTestCallStatus, statusString };
+  const firstTestCallStatus = pickFirst(
+    data, "first_test_call_status", "firstTestCallStatus"
+  ) ?? pickFirst(activation, "first_test_call_status", "firstTestCallStatus");
+
+  const statusString =
+    pickFirst(data, "status_label", "statusLabel") ??
+    pickFirst(activation, "status", "status_label") ??
+    (typeof data.status === "string" ? data.status : null);
+
+  return { firstTestCallStatus, statusString };
 }
 
-/**
- * Create beta subscriber account.
- */
-export async function createBetaAccount({ fullName, email, protectedPhone }) {
-  let response;
+/* ─── Network / error helpers ─── */
+
+async function safeFetch(url, options) {
   try {
-    response = await fetch(ENDPOINTS.ONBOARDING, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: fullName,
-        email: email,
-        protected_phone_number: protectedPhone,
-      }),
-    });
+    return await fetch(url, options);
   } catch (networkErr) {
     throw new Error(
       "We could not reach the beta server. Please check your connection and try again."
     );
   }
+}
+
+async function handleErrorResponse(response, defaultMessage) {
+  const errorData = await response.json().catch(() => ({}));
+  if (errorData.error === "feature_disabled") {
+    throw new Error("This beta feature is not active yet.");
+  }
+  if (errorData.error === "missing_token") {
+    throw new Error("Your beta session expired. Please restart setup.");
+  }
+  throw new Error(errorData.message || errorData.error || defaultMessage);
+}
+
+/* ─── Public API functions ─── */
+
+export async function createBetaAccount({ fullName, email, protectedPhone }) {
+  const response = await safeFetch(ENDPOINTS.ONBOARDING, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: fullName,
+      email: email,
+      protected_phone_number: protectedPhone,
+    }),
+  });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.error === "feature_disabled") {
-      throw new Error("This beta feature is not active yet.");
-    }
-    throw new Error(
-      errorData.message ||
-      errorData.error ||
+    await handleErrorResponse(
+      response,
       "Something went wrong creating your beta account. Please check your information and try again."
     );
   }
@@ -158,7 +166,6 @@ export async function createBetaAccount({ fullName, email, protectedPhone }) {
       "Your beta account was created, but we could not read the account ID. Please contact the beta coordinator."
     );
   }
-
   if (!subscriberToken) {
     throw new Error(
       "Your beta account was created, but your secure beta session was not returned. Please contact the beta coordinator."
@@ -168,111 +175,58 @@ export async function createBetaAccount({ fullName, email, protectedPhone }) {
   return { subscriberId, subscriberToken, systemNumber };
 }
 
-/**
- * Mark forwarding setup as complete.
- */
 export async function markSetupComplete({ subscriberId, subscriberToken }) {
-  let response;
-  try {
-    response = await fetch(ENDPOINTS.SETUP_COMPLETE(subscriberId), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${subscriberToken}`,
-      },
-      body: JSON.stringify({}),
-    });
-  } catch (networkErr) {
-    throw new Error(
-      "We could not reach the beta server. Please check your connection and try again."
-    );
-  }
+  const response = await safeFetch(ENDPOINTS.SETUP_COMPLETE(subscriberId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${subscriberToken}`,
+    },
+    body: JSON.stringify({}),
+  });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.error === "feature_disabled") {
-      throw new Error("This beta feature is not active yet.");
-    }
-    if (errorData.error === "missing_token") {
-      throw new Error("Your beta session expired. Please restart setup.");
-    }
-    throw new Error(
-      errorData.message ||
-      errorData.error ||
+    await handleErrorResponse(
+      response,
       "We saved your beta account, but could not mark forwarding as complete. Please try again or contact the beta coordinator."
     );
   }
 
-  const data = await response.json();
-  return extractActivationData(data);
+  return extractActivationData(await response.json());
 }
 
-/**
- * Check forwarding/setup status.
- */
 export async function checkForwardingStatus({ subscriberId, subscriberToken }) {
-  let response;
-  try {
-    response = await fetch(ENDPOINTS.FORWARDING_STATUS(subscriberId), {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${subscriberToken}`,
-      },
-    });
-  } catch (networkErr) {
-    throw new Error(
-      "We could not reach the beta server. Please check your connection and try again."
-    );
-  }
+  const response = await safeFetch(ENDPOINTS.FORWARDING_STATUS(subscriberId), {
+    method: "GET",
+    headers: { Authorization: `Bearer ${subscriberToken}` },
+  });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.error === "missing_token") {
-      throw new Error("Your beta session expired. Please restart setup.");
-    }
-    throw new Error(
-      errorData.message ||
-      errorData.error ||
+    await handleErrorResponse(
+      response,
       "Could not check your setup status. Please try again."
     );
   }
 
-  const data = await response.json();
-  return extractActivationData(data);
+  return extractActivationData(await response.json());
 }
 
-/**
- * Retry first test call.
- */
 export async function retryTestCall({ subscriberId, subscriberToken }) {
-  let response;
-  try {
-    response = await fetch(ENDPOINTS.RETRY_TEST_CALL(subscriberId), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${subscriberToken}`,
-      },
-      body: JSON.stringify({}),
-    });
-  } catch (networkErr) {
-    throw new Error(
-      "We could not reach the beta server. Please check your connection and try again."
-    );
-  }
+  const response = await safeFetch(ENDPOINTS.RETRY_TEST_CALL(subscriberId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${subscriberToken}`,
+    },
+    body: JSON.stringify({}),
+  });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.error === "missing_token") {
-      throw new Error("Your beta session expired. Please restart setup.");
-    }
-    throw new Error(
-      errorData.message ||
-      errorData.error ||
+    await handleErrorResponse(
+      response,
       "We could not restart the test call. Please check your forwarding setup or wait for beta team follow-up."
     );
   }
 
-  const data = await response.json();
-  return extractActivationData(data);
+  return extractActivationData(await response.json());
 }

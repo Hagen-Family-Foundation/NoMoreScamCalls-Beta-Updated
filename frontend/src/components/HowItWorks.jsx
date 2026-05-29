@@ -2,25 +2,29 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserPlus, PhoneIncoming, PhoneForwarded, ShieldCheck } from "lucide-react";
 
-const steps = [
+const STEPS = [
   {
+    id: "enter-info",
     icon: UserPlus,
     title: "Enter your beta info",
     description: "Tell us who you are and which phone number you want protected.",
   },
   {
+    id: "receive-number",
     icon: PhoneIncoming,
     title: "Receive your assigned forwarding number",
     description:
       "After your beta account is created, we\u2019ll provide the number your protected phone should forward to.",
   },
   {
+    id: "turn-on-forwarding",
     icon: PhoneForwarded,
     title: "Turn on call forwarding",
     description:
       "Use your carrier\u2019s call-forwarding feature to forward your protected phone number to the assigned number shown on this page.",
   },
   {
+    id: "ready-test-call",
     icon: ShieldCheck,
     title: "Ready for your first test call",
     description:
@@ -37,13 +41,12 @@ export const HowItWorks = () => {
         </h2>
 
         <div className="grid gap-4 sm:gap-5">
-          {steps.map((step, index) => (
+          {STEPS.map((step, index) => (
             <Card
-              key={index}
+              key={step.id}
               className="shadow-card border-border/60 hover:shadow-elevated transition-base group"
             >
               <CardContent className="flex items-start gap-4 p-5 sm:p-6">
-                {/* Step number + icon */}
                 <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-base">
                   <step.icon className="w-5 h-5" />
                 </div>
