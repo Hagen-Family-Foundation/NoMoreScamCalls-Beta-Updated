@@ -1,20 +1,26 @@
 # NoMoreScamCalls.com - Beta Onboarding Landing Page (Standalone)
 
 ## Overview
-Single-page beta onboarding landing page. 4-step flow: sign up → receive assigned ScamStop number → turn on carrier forwarding → ready for first test call.
+Single-page multi-step beta onboarding flow. States transition within one page — no separate routes.
 
-## 4-Step Flow
-1. **Info** — Name, email, protected phone → `POST /subscriber/onboarding`
-2. **Number** — Display assigned `telnyx_system_number` with copy button + explanation
-3. **Forward** — General carrier forwarding instructions → "I have turned on call forwarding" → `POST /subscriber/{id}/forwarding/setup-complete` (Bearer token)
-4. **Ready** — Dynamic success based on backend response (auto/pending_manual/failed) + "Check setup status" via `GET /subscriber/{id}/forwarding/status`
+## States
+- **State 1**: Signup form (name, email, protected phone)
+- **State 2A**: Assigned forwarding number received → display + copy
+- **State 2B**: Number pending → waiting message with account summary
+- **State 3**: Forwarding instructions + "I have turned on call forwarding" → calls setup-complete API
+- **State 4A**: First test call pending
+- **State 4B**: First test call started
+- **State 4C**: Success — "Your phone is now protected"
+- **State 4D**: Needs attention — retry + check status
 
 ## API Endpoints (all in `/src/lib/api.js`)
 - `POST /subscriber/onboarding`
 - `POST /subscriber/{id}/forwarding/setup-complete` (Bearer auth)
 - `GET /subscriber/{id}/forwarding/status` (Bearer auth)
+- `POST /subscriber/{id}/forwarding/first-test-call/retry` (Bearer auth)
 
-## Not included (per spec)
-No Stripe, no forwarding phone input, no SMS verification, no email/SMS/Skeeter features, no fake testimonials.
+## Progress Indicator
+Info → Assigned number → Forwarding → Test call
 
-## Design: Teal + navy + off-white, Work Sans font, mobile-first.
+## Not included
+No Stripe, no forwarding phone input, no SMS verification, no ScamStop/Telnyx/Skeeter mentions, no inactive features.
