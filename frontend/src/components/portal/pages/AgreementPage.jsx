@@ -10,7 +10,10 @@ import {
   AGREEMENT_TITLE,
   AGREEMENT_EFFECTIVE,
   AGREEMENT_VERSION,
+  AGREEMENT_PREAMBLE,
   AGREEMENT_SECTIONS,
+  AGREEMENT_ACCEPTANCE_HEADING,
+  AGREEMENT_ACCEPTANCE,
 } from "@/data/agreement";
 
 export default function AgreementPage() {
@@ -54,6 +57,11 @@ export default function AgreementPage() {
             className="max-h-[420px] overflow-y-auto pr-3 space-y-5 border border-border/50 rounded-lg p-5 bg-secondary/20"
             data-testid="agreement-body"
           >
+            {AGREEMENT_PREAMBLE.map((line, i) => (
+              <p key={`preamble-${i}`} className="text-sm text-foreground leading-relaxed">
+                {line}
+              </p>
+            ))}
             {AGREEMENT_SECTIONS.map((s) => (
               <section key={s.id}>
                 <h3 className="text-sm font-semibold text-foreground mb-1.5">{s.heading}</h3>
@@ -67,13 +75,14 @@ export default function AgreementPage() {
               </section>
             ))}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-1.5">Contact</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Questions about this agreement can be sent to{" "}
-                <a href="mailto:support@nomorescamcalls.com" className="text-primary hover:underline">
-                  support@nomorescamcalls.com
-                </a>.
-              </p>
+              <h3 className="text-sm font-semibold text-foreground mb-1.5">{AGREEMENT_ACCEPTANCE_HEADING}</h3>
+              <div className="space-y-1.5">
+                {AGREEMENT_ACCEPTANCE.map((line, i) => (
+                  <p key={`acceptance-${i}`} className="text-sm text-muted-foreground leading-relaxed">
+                    {line}
+                  </p>
+                ))}
+              </div>
             </section>
           </div>
 
@@ -89,7 +98,7 @@ export default function AgreementPage() {
               {accepting ? (
                 <><Loader2 className="w-4 h-4 animate-spin" />Recording acceptance...</>
               ) : (
-                <><ShieldCheck className="w-4 h-4 mr-2" />I accept the agreement</>
+                <><ShieldCheck className="w-4 h-4 mr-2" />I Agree</>
               )}
             </Button>
             <Button variant="outline" size="lg" onClick={handleDecline} data-testid="button-decline-agreement">
@@ -99,7 +108,7 @@ export default function AgreementPage() {
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
-            By clicking &quot;I accept,&quot; you record that you agree to the terms above. Your name, agreement version, and the date and time of acceptance will be stored with your account.
+            Your acceptance, the agreement version, your participant identifier, and the date and time of acceptance will be recorded as part of your beta participation record.
           </p>
         </CardContent>
       </Card>
