@@ -133,7 +133,7 @@ export default function DashboardPage() {
           <div className="text-xs text-muted-foreground border-t border-border/50 pt-3">
             Agreement:{" "}
             {user?.agreement_accepted
-              ? <>Accepted {user?.agreement_accepted_at ? `on ${formatDateTime(user.agreement_accepted_at)}` : ""} (v{user?.agreement_version || "—"})</>
+              ? <>Accepted {user?.agreement_accepted_at ? `on ${formatDateTime(user.agreement_accepted_at)}` : ""} ({user?.agreement_version || "—"})</>
               : "Not accepted"}
           </div>
         </CardContent>

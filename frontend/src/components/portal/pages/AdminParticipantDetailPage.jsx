@@ -115,7 +115,7 @@ export default function AdminParticipantDetailPage() {
             <Row label="Activated">{fmt(participant?.activated_at)}</Row>
             <Row label="Agreement">
               {participant?.agreement_accepted ? (
-                <>Accepted on {fmt(participant?.agreement_accepted_at)} (v{participant?.agreement_version || "—"})</>
+                <>Accepted on {fmt(participant?.agreement_accepted_at)} ({participant?.agreement_version || "—"})</>
               ) : (
                 <span className="text-warning">Not accepted</span>
               )}
