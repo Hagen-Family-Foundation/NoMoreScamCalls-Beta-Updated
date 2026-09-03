@@ -16,6 +16,7 @@ import { PortalLayout } from "@/components/portal/PortalLayout";
 import {
   RequireAuth,
   RequireAgreement,
+  RequireCustomer,
   RequireAdmin,
 } from "@/components/portal/guards";
 import InviteCodePage from "@/components/portal/pages/InviteCodePage";
@@ -64,7 +65,9 @@ function App() {
             path="/portal/agreement"
             element={
               <RequireAuth>
-                <AgreementPage />
+                <RequireCustomer>
+                  <AgreementPage />
+                </RequireCustomer>
               </RequireAuth>
             }
           />
@@ -73,9 +76,11 @@ function App() {
             path="/portal"
             element={
               <RequireAuth>
-                <RequireAgreement>
-                  <PortalLayout mode="participant" />
-                </RequireAgreement>
+                <RequireCustomer>
+                  <RequireAgreement>
+                    <PortalLayout mode="participant" />
+                  </RequireAgreement>
+                </RequireCustomer>
               </RequireAuth>
             }
           >
@@ -88,11 +93,9 @@ function App() {
             path="/portal/admin"
             element={
               <RequireAuth>
-                <RequireAgreement>
-                  <RequireAdmin>
-                    <PortalLayout mode="admin" />
-                  </RequireAdmin>
-                </RequireAgreement>
+                <RequireAdmin>
+                  <PortalLayout mode="admin" />
+                </RequireAdmin>
               </RequireAuth>
             }
           >

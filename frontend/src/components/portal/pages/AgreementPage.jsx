@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,29 +6,52 @@ import { Loader2, AlertCircle, ShieldCheck, LogOut } from "lucide-react";
 import { AuthShell } from "@/components/portal/AuthShell";
 import { useAuth } from "@/contexts/AuthContext";
 import { portalApi } from "@/lib/portalApi";
-import {
-  AGREEMENT_TITLE,
-  AGREEMENT_EFFECTIVE,
-  AGREEMENT_VERSION,
-  AGREEMENT_PREAMBLE,
-  AGREEMENT_SECTIONS,
-  AGREEMENT_ACCEPTANCE_HEADING,
-  AGREEMENT_ACCEPTANCE,
-} from "@/data/agreement";
+
+function formatEffectiveDate(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(value));
+}
 
 export default function AgreementPage() {
   const navigate = useNavigate();
-  const { user, isAdmin, refreshUser, logout } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
+  const [agreement, setAgreement] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    let active = true;
+
+    portalApi.currentAgreement()
+      .then((currentAgreement) => {
+        if (active) setAgreement(currentAgreement);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const handleAccept = async () => {
+    if (!agreement) return;
     setError("");
     setAccepting(true);
     try {
-      await portalApi.acceptAgreement(AGREEMENT_VERSION);
+      await portalApi.acceptAgreement(agreement.version);
       await refreshUser();
-      navigate(isAdmin ? "/portal/admin" : "/portal/dashboard", { replace: true });
+      navigate("/portal/dashboard", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -43,13 +66,13 @@ export default function AgreementPage() {
 
   return (
     <AuthShell
-      title={AGREEMENT_TITLE}
-      subtitle={AGREEMENT_EFFECTIVE}
+      title={agreement?.title || "NoMoreScamCalls Beta Participation Agreement"}
+      subtitle={agreement ? `Effective ${formatEffectiveDate(agreement.effectiveAt)}` : "Loading current agreement…"}
     >
       <Card className="shadow-elevated border-border/60">
         <CardContent className="p-6 sm:p-8 space-y-6">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            <span>Agreement version: <span className="font-mono text-foreground">{AGREEMENT_VERSION}</span></span>
+            <span>Agreement version: <span className="font-mono text-foreground">{agreement?.version || "—"}</span></span>
             {user?.email && <span>Signing as: <span className="text-foreground">{user.email}</span></span>}
           </div>
 
@@ -57,12 +80,12 @@ export default function AgreementPage() {
             className="max-h-[420px] overflow-y-auto pr-3 space-y-5 border border-border/50 rounded-lg p-5 bg-secondary/20"
             data-testid="agreement-body"
           >
-            {AGREEMENT_PREAMBLE.map((line, i) => (
+            {agreement?.preamble?.map((line, i) => (
               <p key={`preamble-${i}`} className="text-sm text-foreground leading-relaxed">
                 {line}
               </p>
             ))}
-            {AGREEMENT_SECTIONS.map((s) => (
+            {agreement?.sections?.map((s) => (
               <section key={s.id}>
                 <h3 className="text-sm font-semibold text-foreground mb-1.5">{s.heading}</h3>
                 <div className="space-y-1.5">
@@ -75,9 +98,9 @@ export default function AgreementPage() {
               </section>
             ))}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-1.5">{AGREEMENT_ACCEPTANCE_HEADING}</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-1.5">{agreement?.acceptanceHeading}</h3>
               <div className="space-y-1.5">
-                {AGREEMENT_ACCEPTANCE.map((line, i) => (
+                {agreement?.acceptance?.map((line, i) => (
                   <p key={`acceptance-${i}`} className="text-sm text-muted-foreground leading-relaxed">
                     {line}
                   </p>
@@ -94,8 +117,10 @@ export default function AgreementPage() {
           )}
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button variant="cta" size="lg" className="flex-1" onClick={handleAccept} disabled={accepting} data-testid="button-accept-agreement">
-              {accepting ? (
+            <Button variant="cta" size="lg" className="flex-1" onClick={handleAccept} disabled={loading || accepting || !agreement} data-testid="button-accept-agreement">
+              {loading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" />Loading agreement...</>
+              ) : accepting ? (
                 <><Loader2 className="w-4 h-4 animate-spin" />Recording acceptance...</>
               ) : (
                 <><ShieldCheck className="w-4 h-4 mr-2" />I Agree</>

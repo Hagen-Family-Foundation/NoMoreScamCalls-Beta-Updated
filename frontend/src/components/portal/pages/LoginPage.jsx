@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, ArrowRight, Mail, Lock } from "lucide-react";
 import { AuthShell } from "@/components/portal/AuthShell";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { resolvePostLoginPath } from "@/components/portal/routing";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -28,8 +29,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const me = await login({ email: email.trim(), password });
-      const to = location.state?.from?.pathname || (me.role === "admin" || me.role === "administrator" ? "/portal/admin" : "/portal/dashboard");
-      navigate(me.agreement_accepted ? to : "/portal/agreement", { replace: true });
+      navigate(
+        resolvePostLoginPath(me, location.state?.from?.pathname),
+        { replace: true }
+      );
     } catch (err) {
       setError(err.message);
     } finally {

@@ -38,6 +38,7 @@ const ENDPOINTS = {
   LOGIN: "/portal/auth/login",
   LOGOUT: "/portal/auth/logout",
   ME: "/portal/me",
+  CURRENT_AGREEMENT: "/portal/agreement/current",
   ACCEPT_AGREEMENT: "/portal/agreement/accept",
   ME_SUMMARY: "/portal/me/summary",
   ME_CALLS: "/portal/me/calls",
@@ -287,6 +288,17 @@ export const portalApi = {
       body: payload,
       auth: true,
     }),
+
+  currentAgreement: async () => {
+    const result = await request(
+      ENDPOINTS.CURRENT_AGREEMENT,
+      {
+        auth: true,
+      }
+    );
+
+    return result?.agreement;
+  },
 
   acceptAgreement: (version) =>
     request(

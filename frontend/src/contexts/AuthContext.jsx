@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
     const result = await portalApi.login({ email, password });
     if (!result?.token) throw new Error("Sign in did not return a session token.");
     setStoredToken(result.token);
-    const me = result.user || (await portalApi.me());
+    const me = await portalApi.me();
     setUser(me);
     return me;
   }, []);
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
     const result = await portalApi.register(payload);
     if (!result?.token) throw new Error("Registration did not return a session token.");
     setStoredToken(result.token);
-    const me = result.user || (await portalApi.me());
+    const me = await portalApi.me();
     setUser(me);
     return me;
   }, []);

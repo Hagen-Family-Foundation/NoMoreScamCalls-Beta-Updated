@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAdministrativeUser } from "@/components/portal/routing";
 
 function FullPageLoader() {
   return (
@@ -26,6 +27,15 @@ export function RequireAgreement({ children }) {
   if (loading) return <FullPageLoader />;
   if (!hasAcceptedAgreement) {
     return <Navigate to="/portal/agreement" replace />;
+  }
+  return children;
+}
+
+export function RequireCustomer({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <FullPageLoader />;
+  if (isAdministrativeUser(user)) {
+    return <Navigate to="/portal/admin" replace />;
   }
   return children;
 }
