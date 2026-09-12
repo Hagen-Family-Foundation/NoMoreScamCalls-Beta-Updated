@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ function formatDateTime(value) {
 function StatusBadge({ status }) {
   const map = {
     active: { label: "Active", cls: "bg-success-muted text-success border-success/30" },
+    inactive: { label: "Inactive", cls: "bg-warning/10 text-warning border-warning/30" },
     suspended: { label: "Suspended", cls: "bg-warning/10 text-warning border-warning/30" },
     closed: { label: "Closed", cls: "bg-muted text-muted-foreground border-border" },
     setup_incomplete: { label: "Setup incomplete", cls: "bg-warning/10 text-warning border-warning/30" },
@@ -26,6 +28,8 @@ function StatusBadge({ status }) {
     test_call_pending: { label: "Test call pending", cls: "bg-primary-glow text-primary border-primary/30" },
     account_created: { label: "Account created", cls: "bg-secondary text-muted-foreground border-border" },
     agreement_accepted: { label: "Agreement accepted", cls: "bg-secondary text-muted-foreground border-border" },
+    onboarding_complete: { label: "Onboarding complete", cls: "bg-success-muted text-success border-success/30" },
+    onboarding_incomplete: { label: "Onboarding incomplete", cls: "bg-warning/10 text-warning border-warning/30" },
   };
   const s = map[status] || { label: status || "Unknown", cls: "bg-secondary text-muted-foreground border-border" };
   return (
@@ -41,7 +45,7 @@ export default function DashboardPage() {
   const [calls, setCalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [copiedLineId, setCopiedLineId] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -66,18 +70,18 @@ export default function DashboardPage() {
     return () => { mounted = false; };
   }, []);
 
-  const copyNumber = async () => {
-    const n = summary?.screening_number || user?.screening_number || "";
-    if (!n) return;
-    try { await navigator.clipboard.writeText(n); } catch { /* ignore */ }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyNumber = async (line) => {
+    if (!line?.screeningNumber) return;
+    try { await navigator.clipboard.writeText(line.screeningNumber); } catch { /* ignore */ }
+    setCopiedLineId(line.id);
+    setTimeout(() => setCopiedLineId(null), 2000);
   };
 
   const totalCalls = summary?.total_calls ?? 0;
   const successful = summary?.successful_calls ?? 0;
   const diverted = summary?.diverted_calls ?? 0;
   const lastCallAt = summary?.last_call_at;
+  const protectedLines = summary?.protected_lines ?? [];
 
   return (
     <div className="space-y-6" data-testid="participant-dashboard">
@@ -107,26 +111,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <InfoRow label="Service status" value={<StatusBadge status={summary?.service_status || user?.setup_status || user?.account_status} />} />
             <InfoRow label="Account status" value={<StatusBadge status={user?.account_status} />} />
-            <InfoRow label="Protected phone" value={user?.phone || "—"} icon={Phone} />
-            <InfoRow
-              label="Assigned screening number"
-              value={
-                (summary?.screening_number || user?.screening_number)
-                  ? (
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-foreground" data-testid="text-screening-number">
-                        {summary?.screening_number || user?.screening_number}
-                      </span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={copyNumber} data-testid="button-copy-screening-number">
-                        {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-                      </Button>
-                    </div>
-                  )
-                  : "Not yet assigned"
-              }
-              icon={Signal}
-            />
-            <InfoRow label="Carrier" value={user?.carrier || "—"} />
+            <InfoRow label="Account contact phone" value={user?.contact_phone_number || "—"} icon={Phone} />
             <InfoRow label="Preferred contact" value={user?.contact_method || "—"} />
           </div>
           <div className="text-xs text-muted-foreground border-t border-border/50 pt-3">
@@ -135,6 +120,25 @@ export default function DashboardPage() {
               ? <>Accepted {user?.agreement_accepted_at ? `on ${formatDateTime(user.agreement_accepted_at)}` : ""} ({user?.agreement_version || "—"})</>
               : "Not accepted"}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-elevated border-border/60">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Phone className="w-4 h-4 text-primary" />
+            Protected Lines
+          </CardTitle>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/portal/setup">Manage setup</Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <ProtectedLinesList
+            protectedLines={protectedLines}
+            copiedLineId={copiedLineId}
+            onCopy={copyNumber}
+          />
         </CardContent>
       </Card>
 
@@ -192,6 +196,51 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+export function ProtectedLinesList({ protectedLines, copiedLineId, onCopy }) {
+  if (protectedLines.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-border p-5 text-center">
+        <p className="text-sm text-muted-foreground">No Protected Line has been configured yet.</p>
+        <Button asChild variant="cta" className="mt-4">
+          <Link to="/portal/setup">Set up a Protected Line</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3" data-testid="protected-lines">
+      {protectedLines.map((line) => (
+        <div key={line.id} className="rounded-lg border border-border/60 p-4" data-testid={`protected-line-${line.id}`}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-mono text-sm font-medium text-foreground">{line.protectedPhoneNumber}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{line.callerFacingBusinessName}</p>
+            </div>
+            <StatusBadge status={line.coverageStatus} />
+          </div>
+          <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+            <InfoRow
+              label="NMSC system number"
+              value={line.screeningNumber ? (
+                <div className="flex items-center gap-2">
+                  <span className="font-mono" data-testid={`screening-number-${line.id}`}>{line.screeningNumber}</span>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onCopy(line)} aria-label="Copy NMSC system number">
+                    {copiedLineId === line.id ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
+              ) : "Not assigned"}
+              icon={Signal}
+            />
+            <InfoRow label="Forwarding" value={line.forwardingStatus?.replaceAll("_", " ") || "not started"} />
+            <InfoRow label="Carrier" value={line.carrier || "—"} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

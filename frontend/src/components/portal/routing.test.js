@@ -1,4 +1,5 @@
 import {
+  hasActiveProtectedLine,
   isAdministrativeUser,
   resolvePostLoginPath,
 } from "./routing";
@@ -17,7 +18,7 @@ describe("portal role routing", () => {
     ).toBe("/portal/admin/participants");
   });
 
-  it("routes beta customers through the agreement until accepted", () => {
+  it("routes customers through agreement and Protected Line activation", () => {
     expect(
       resolvePostLoginPath({
         role: "subscriber",
@@ -30,6 +31,17 @@ describe("portal role routing", () => {
         role: "subscriber",
         agreement_accepted: true,
       })
-    ).toBe("/portal/dashboard");
+    ).toBe("/portal/setup");
+
+    const activeCustomer = {
+      role: "subscriber",
+      agreement_accepted: true,
+      protected_lines: [
+        { id: 1, coverageStatus: "inactive" },
+        { id: 2, coverageStatus: "active" },
+      ],
+    };
+    expect(hasActiveProtectedLine(activeCustomer)).toBe(true);
+    expect(resolvePostLoginPath(activeCustomer)).toBe("/portal/dashboard");
   });
 });

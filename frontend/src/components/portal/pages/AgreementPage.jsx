@@ -51,7 +51,7 @@ export default function AgreementPage() {
     try {
       await portalApi.acceptAgreement(agreement.version);
       await refreshUser();
-      navigate("/portal/dashboard", { replace: true });
+      navigate("/portal/setup", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

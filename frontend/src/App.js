@@ -22,6 +22,7 @@ import {
 import RegisterPage from "@/components/portal/pages/RegisterPage";
 import LoginPage from "@/components/portal/pages/LoginPage";
 import AgreementPage from "@/components/portal/pages/AgreementPage";
+import ProtectedLineSetupPage from "@/components/portal/pages/ProtectedLineSetupPage";
 import DashboardPage from "@/components/portal/pages/DashboardPage";
 import ProfilePage from "@/components/portal/pages/ProfilePage";
 import FeedbackPage from "@/components/portal/pages/FeedbackPage";
@@ -81,6 +82,7 @@ function App() {
               </RequireAuth>
             }
           >
+            <Route path="setup" element={<ProtectedLineSetupPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="feedback" element={<FeedbackPage />} />
             <Route path="profile" element={<ProfilePage />} />

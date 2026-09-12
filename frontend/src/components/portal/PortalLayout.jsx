@@ -1,12 +1,13 @@
 import React from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Shield, LogOut, LayoutDashboard, MessageSquare, UserCog, Users, Inbox, BarChart3 } from "lucide-react";
+import { Shield, LogOut, LayoutDashboard, MessageSquare, UserCog, Users, Inbox, BarChart3, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const participantNav = [
+  { to: "/portal/setup", label: "Protected Line setup", icon: Phone },
   { to: "/portal/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/portal/feedback", label: "Report issue", icon: MessageSquare },
   { to: "/portal/profile", label: "Profile", icon: UserCog },

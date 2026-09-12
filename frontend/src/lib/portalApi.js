@@ -37,6 +37,14 @@ const ENDPOINTS = {
   LOGIN: "/portal/auth/login",
   LOGOUT: "/portal/auth/logout",
   ME: "/portal/me",
+  ME_ONBOARDING: "/portal/me/onboarding",
+  ME_LOCATIONS: "/portal/me/locations",
+  ME_PROTECTED_LINES: (locationId) =>
+    `/portal/me/locations/${locationId}/protected-lines`,
+  ME_PROVISION_LINE: (lineId) =>
+    `/portal/me/protected-lines/${lineId}/provision`,
+  ME_CONFIRM_FORWARDING: (lineId) =>
+    `/portal/me/protected-lines/${lineId}/forwarding-confirm`,
   CURRENT_AGREEMENT: "/portal/agreement/current",
   ACCEPT_AGREEMENT: "/portal/agreement/accept",
   ME_SUMMARY: "/portal/me/summary",
@@ -272,15 +280,64 @@ export const portalApi = {
       }
     );
 
-    return normalizeUser(
-      result?.user ?? result
-    );
+    return {
+      ...normalizeUser(result?.user ?? result),
+      locations: result?.locations ?? [],
+      protected_lines: result?.protected_lines ?? [],
+    };
   },
 
   updateMe: (payload) =>
-    request(ENDPOINTS.ME, {
+    request(ENDPOINTS.ME_ONBOARDING, {
       method: "PATCH",
-      body: payload,
+      body: {
+        firstName:
+          payload.firstName ?? payload.first_name,
+        lastName:
+          payload.lastName ?? payload.last_name,
+        email: payload.email,
+        contactPhoneNumber:
+          payload.contactPhoneNumber ??
+          payload.contact_phone_number,
+        contactMethod:
+          payload.contactMethod ?? payload.contact_method,
+      },
+      auth: true,
+    }),
+
+  createLocation: () =>
+    request(ENDPOINTS.ME_LOCATIONS, {
+      method: "POST",
+      auth: true,
+    }),
+
+  createProtectedLine: (locationId, payload) =>
+    request(
+      ENDPOINTS.ME_PROTECTED_LINES(locationId),
+      {
+        method: "POST",
+        body: {
+          protectedPhoneNumber:
+            payload.protectedPhoneNumber ??
+            payload.protected_phone_number,
+          callerFacingBusinessName:
+            payload.callerFacingBusinessName ??
+            payload.caller_facing_business_name,
+          carrier: payload.carrier,
+        },
+        auth: true,
+      }
+    ),
+
+  provisionProtectedLine: (lineId) =>
+    request(ENDPOINTS.ME_PROVISION_LINE(lineId), {
+      method: "POST",
+      auth: true,
+    }),
+
+  confirmProtectedLineForwarding: (lineId) =>
+    request(ENDPOINTS.ME_CONFIRM_FORWARDING(lineId), {
+      method: "POST",
       auth: true,
     }),
 

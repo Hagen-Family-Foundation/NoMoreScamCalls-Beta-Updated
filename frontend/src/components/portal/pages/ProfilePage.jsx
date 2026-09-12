@@ -18,8 +18,7 @@ export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
   const [firstName, setFirstName] = useState(user?.first_name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
-  const [phone, setPhone] = useState(user?.phone || "");
-  const [carrier, setCarrier] = useState(user?.carrier || "");
+  const [contactPhoneNumber, setContactPhoneNumber] = useState(user?.contact_phone_number || "");
   const [contactMethod, setContactMethod] = useState(user?.contact_method || "email");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -34,8 +33,7 @@ export default function ProfilePage() {
       await portalApi.updateMe({
         first_name: firstName.trim(),
         last_name: lastName.trim(),
-        phone: phone.trim(),
-        carrier: carrier.trim(),
+        contact_phone_number: contactPhoneNumber.trim(),
         contact_method: contactMethod,
       });
       await refreshUser();
@@ -78,13 +76,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="phone">Protected phone number</Label>
-              <Input id="phone" data-testid="input-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-11" />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="carrier">Mobile carrier</Label>
-              <Input id="carrier" data-testid="input-carrier" value={carrier} onChange={(e) => setCarrier(e.target.value)} className="h-11" />
+              <Label htmlFor="contact-phone-number">Account contact phone number</Label>
+              <Input id="contact-phone-number" data-testid="input-contact-phone-number" type="tel" value={contactPhoneNumber} onChange={(e) => setContactPhoneNumber(e.target.value)} className="h-11" />
+              <p className="text-xs text-muted-foreground">Protected telephone numbers are managed separately in Protected Line setup.</p>
             </div>
 
             <div className="space-y-1.5">
