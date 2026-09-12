@@ -109,7 +109,6 @@ export default function AdminParticipantDetailPage() {
             <Row label="Screening number">{participant?.screening_number || "Not yet assigned"}</Row>
             <Row label="Carrier">{participant?.carrier || "—"}</Row>
             <Row label="Preferred contact">{participant?.contact_method || "—"}</Row>
-            <Row label="Invitation code"><span className="font-mono">{participant?.invite_code || participant?.code || "—"}</span></Row>
             <Row label="Account created">{fmt(participant?.created_at)}</Row>
             <Row label="Setup status">{participant?.setup_status || "—"}</Row>
             <Row label="Activated">{fmt(participant?.activated_at)}</Row>

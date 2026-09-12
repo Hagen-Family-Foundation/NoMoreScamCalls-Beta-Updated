@@ -19,7 +19,6 @@ import {
   RequireCustomer,
   RequireAdmin,
 } from "@/components/portal/guards";
-import InviteCodePage from "@/components/portal/pages/InviteCodePage";
 import RegisterPage from "@/components/portal/pages/RegisterPage";
 import LoginPage from "@/components/portal/pages/LoginPage";
 import AgreementPage from "@/components/portal/pages/AgreementPage";
@@ -29,14 +28,13 @@ import FeedbackPage from "@/components/portal/pages/FeedbackPage";
 import AdminOverviewPage from "@/components/portal/pages/AdminOverviewPage";
 import AdminParticipantsPage from "@/components/portal/pages/AdminParticipantsPage";
 import AdminParticipantDetailPage from "@/components/portal/pages/AdminParticipantDetailPage";
-import AdminCodesPage from "@/components/portal/pages/AdminCodesPage";
 import AdminFeedbackPage from "@/components/portal/pages/AdminFeedbackPage";
 
 function LandingPage() {
   const navigate = useNavigate();
 
   const startBetaSetup = () => {
-    navigate("/portal/join");
+    navigate("/portal/register");
   };
 
   return (
@@ -58,7 +56,6 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
 
-          <Route path="/portal/join" element={<InviteCodePage />} />
           <Route path="/portal/register" element={<RegisterPage />} />
           <Route path="/portal/login" element={<LoginPage />} />
           <Route
@@ -105,7 +102,6 @@ function App() {
               path="participants/:id"
               element={<AdminParticipantDetailPage />}
             />
-            <Route path="codes" element={<AdminCodesPage />} />
             <Route path="feedback" element={<AdminFeedbackPage />} />
           </Route>
         </Routes>

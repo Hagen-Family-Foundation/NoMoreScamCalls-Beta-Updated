@@ -26,7 +26,6 @@ function StatusBadge({ status }) {
     test_call_pending: { label: "Test call pending", cls: "bg-primary-glow text-primary border-primary/30" },
     account_created: { label: "Account created", cls: "bg-secondary text-muted-foreground border-border" },
     agreement_accepted: { label: "Agreement accepted", cls: "bg-secondary text-muted-foreground border-border" },
-    invitation_sent: { label: "Invitation sent", cls: "bg-secondary text-muted-foreground border-border" },
   };
   const s = map[status] || { label: status || "Unknown", cls: "bg-secondary text-muted-foreground border-border" };
   return (

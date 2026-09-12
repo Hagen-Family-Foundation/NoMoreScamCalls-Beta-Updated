@@ -121,7 +121,6 @@ export default function AdminParticipantsPage() {
                   <th className="text-left px-4 py-2.5">Protected phone</th>
                   <th className="text-left px-4 py-2.5">Screening #</th>
                   <th className="text-left px-4 py-2.5">Carrier</th>
-                  <th className="text-left px-4 py-2.5">Code</th>
                   <th className="text-left px-4 py-2.5">Status</th>
                   <th className="text-left px-4 py-2.5">Setup</th>
                   <th className="text-right px-4 py-2.5">Total</th>
@@ -142,7 +141,6 @@ export default function AdminParticipantsPage() {
                     <td className="px-4 py-2.5 font-mono text-xs">{p.phone || "—"}</td>
                     <td className="px-4 py-2.5 font-mono text-xs">{p.screening_number || "—"}</td>
                     <td className="px-4 py-2.5 text-muted-foreground">{p.carrier || "—"}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs">{p.invite_code || p.code || "—"}</td>
                     <td className="px-4 py-2.5">{p.account_status || "—"}</td>
                     <td className="px-4 py-2.5">{p.setup_status || "—"}</td>
                     <td className="px-4 py-2.5 text-right">{p.total_calls ?? 0}</td>

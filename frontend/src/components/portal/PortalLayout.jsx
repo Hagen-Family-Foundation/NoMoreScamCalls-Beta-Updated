@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Shield, LogOut, LayoutDashboard, MessageSquare, UserCog, Users, Ticket, Inbox, BarChart3 } from "lucide-react";
+import { Shield, LogOut, LayoutDashboard, MessageSquare, UserCog, Users, Inbox, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,7 +15,6 @@ const participantNav = [
 const adminNav = [
   { to: "/portal/admin", label: "Overview", icon: BarChart3, end: true },
   { to: "/portal/admin/participants", label: "Participants", icon: Users },
-  { to: "/portal/admin/codes", label: "Invitation codes", icon: Ticket },
   { to: "/portal/admin/feedback", label: "Feedback", icon: Inbox },
 ];
 

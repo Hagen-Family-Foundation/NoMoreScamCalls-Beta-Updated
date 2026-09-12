@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,35 +15,25 @@ const CONTACT_METHODS = [
   { value: "sms", label: "Text message" },
 ];
 
-const CARRIERS = ["Verizon", "AT&T", "T-Mobile", "US Cellular", "Google Fi", "Xfinity Mobile", "Spectrum Mobile", "Other"];
-
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 export default function RegisterPage() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { register } = useAuth();
-  const code = location.state?.code || "";
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [carrier, setCarrier] = useState("");
+  const [contactPhoneNumber, setContactPhoneNumber] = useState("");
   const [contactMethod, setContactMethod] = useState("email");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [betaAccessCode, setBetaAccessCode] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  useEffect(() => {
-    if (!code) navigate("/portal/join", { replace: true });
-  }, [code, navigate]);
-
-  if (!code) return <Navigate to="/portal/join" replace />;
 
   const validate = () => {
     const e = {};
@@ -51,11 +41,11 @@ export default function RegisterPage() {
     if (!lastName.trim()) e.lastName = "Last name is required.";
     if (!email.trim()) e.email = "Email is required.";
     else if (!isValidEmail(email)) e.email = "Enter a valid email.";
-    if (!phone.trim()) e.phone = "Phone number is required.";
-    if (!carrier.trim()) e.carrier = "Carrier is required.";
+    if (!contactPhoneNumber.trim()) e.contactPhoneNumber = "Account contact phone number is required.";
     if (!password) e.password = "Choose a password.";
     else if (password.length < 8) e.password = "Password must be at least 8 characters.";
     if (password !== confirmPassword) e.confirmPassword = "Passwords do not match.";
+    if (!/^\d{4}$/.test(betaAccessCode)) e.betaAccessCode = "Enter the four-digit beta access code.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -67,12 +57,11 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register({
-        code,
+        beta_access_code: betaAccessCode,
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
-        phone: phone.trim(),
-        carrier: carrier.trim(),
+        contact_phone_number: contactPhoneNumber.trim(),
         contact_method: contactMethod,
         password,
       });
@@ -87,7 +76,7 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Create your beta account"
-      subtitle={<>Invitation code:{" "}<span className="font-mono text-foreground">{code}</span></>}
+      subtitle="Enter your account details and the shared four-digit beta access code."
       footer={
         <>Already registered?{" "}
           <Link to="/portal/login" className="text-primary hover:underline" data-testid="link-to-login">Sign in</Link>
@@ -102,25 +91,7 @@ export default function RegisterPage() {
               <FormField id="last-name" label="Last name" value={lastName} onChange={setLastName} error={errors.lastName} testId="input-last-name" />
             </div>
             <FormField id="email" type="email" label="Email address" value={email} onChange={setEmail} error={errors.email} testId="input-email" autoComplete="email" />
-            <FormField id="phone" type="tel" label="Telephone number being protected" value={phone} onChange={setPhone} error={errors.phone} testId="input-phone" autoComplete="tel" />
-
-            <div className="space-y-1.5">
-              <Label htmlFor="carrier">Mobile carrier</Label>
-              <select
-                id="carrier"
-                data-testid="input-carrier"
-                value={carrier}
-                onChange={(e) => setCarrier(e.target.value)}
-                className={cn(
-                  "h-11 w-full rounded-md border bg-background px-3 text-sm",
-                  errors.carrier ? "border-destructive" : "border-input"
-                )}
-              >
-                <option value="">Select your carrier</option>
-                {CARRIERS.map((c) => (<option key={c} value={c}>{c}</option>))}
-              </select>
-              {errors.carrier && <FieldError message={errors.carrier} />}
-            </div>
+            <FormField id="contact-phone-number" type="tel" label="Account contact phone number" value={contactPhoneNumber} onChange={setContactPhoneNumber} error={errors.contactPhoneNumber} testId="input-contact-phone-number" autoComplete="tel" />
 
             <div className="space-y-1.5">
               <Label>Preferred contact method</Label>
@@ -146,6 +117,18 @@ export default function RegisterPage() {
 
             <FormField id="password" type="password" label="Password" value={password} onChange={setPassword} error={errors.password} testId="input-password" autoComplete="new-password" />
             <FormField id="confirm-password" type="password" label="Confirm password" value={confirmPassword} onChange={setConfirmPassword} error={errors.confirmPassword} testId="input-confirm-password" autoComplete="new-password" />
+            <FormField
+              id="beta-access-code"
+              type="text"
+              label="Four-digit beta access code"
+              value={betaAccessCode}
+              onChange={(value) => setBetaAccessCode(value.replace(/\D/g, "").slice(0, 4))}
+              error={errors.betaAccessCode}
+              testId="input-beta-access-code"
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              maxLength={4}
+            />
 
             {submitError && (
               <div data-testid="status-error" className="flex items-start gap-2 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
@@ -164,7 +147,7 @@ export default function RegisterPage() {
   );
 }
 
-function FormField({ id, label, value, onChange, error, testId, type = "text", autoComplete }) {
+function FormField({ id, label, value, onChange, error, testId, type = "text", autoComplete, inputMode, maxLength }) {
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>
@@ -176,6 +159,8 @@ function FormField({ id, label, value, onChange, error, testId, type = "text", a
         onChange={(e) => onChange(e.target.value)}
         className={cn("h-11", error && "border-destructive focus-visible:ring-destructive")}
         autoComplete={autoComplete}
+        inputMode={inputMode}
+        maxLength={maxLength}
       />
       {error && <FieldError message={error} />}
     </div>

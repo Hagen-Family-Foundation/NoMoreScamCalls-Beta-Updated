@@ -45,8 +45,8 @@ export default function LoginPage() {
       title="Sign in"
       subtitle="Welcome back to the NoMoreScamCalls beta."
       footer={
-        <>Have an invitation code?{" "}
-          <Link to="/portal/join" className="text-primary hover:underline" data-testid="link-to-invite">Create an account</Link>
+        <>Joining the private beta?{" "}
+          <Link to="/portal/register" className="text-primary hover:underline" data-testid="link-to-register">Create an account</Link>
         </>
       }
     >

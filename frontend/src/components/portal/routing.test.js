@@ -13,8 +13,8 @@ describe("portal role routing", () => {
     expect(isAdministrativeUser(administrator)).toBe(true);
     expect(resolvePostLoginPath(administrator)).toBe("/portal/admin");
     expect(
-      resolvePostLoginPath(administrator, "/portal/admin/codes")
-    ).toBe("/portal/admin/codes");
+      resolvePostLoginPath(administrator, "/portal/admin/participants")
+    ).toBe("/portal/admin/participants");
   });
 
   it("routes beta customers through the agreement until accepted", () => {

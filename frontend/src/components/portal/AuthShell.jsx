@@ -4,7 +4,7 @@ import { Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 /**
- * Shared shell for pre-auth pages (invite code, register, agreement, login).
+ * Shared shell for pre-auth pages (register, agreement, login).
  * Matches the landing-page visual language.
  */
 export function AuthShell({ title, subtitle, children, footer }) {

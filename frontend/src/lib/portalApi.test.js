@@ -57,4 +57,47 @@ describe("portal agreement API", () => {
       })
     );
   });
+
+  it("submits account contact data and the participant-entered beta code", async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({
+        registered: true,
+        token: "synthetic-session-token",
+        user: {
+          firstName: "Portal",
+          contactPhoneNumber: "+15550001234",
+        },
+      }),
+    });
+
+    const { portalApi } = require("./portalApi");
+    const result = await portalApi.register({
+      beta_access_code: "2468",
+      first_name: "Portal",
+      last_name: "Participant",
+      email: "portal-participant@example.com",
+      contact_phone_number: "+15550001234",
+      contact_method: "email",
+      password: "synthetic-password",
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.example.test/portal/auth/register",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          betaAccessCode: "2468",
+          firstName: "Portal",
+          lastName: "Participant",
+          email: "portal-participant@example.com",
+          contactPhoneNumber: "+15550001234",
+          contactMethod: "email",
+          password: "synthetic-password",
+        }),
+      })
+    );
+    expect(result.user.contact_phone_number).toBe("+15550001234");
+  });
 });

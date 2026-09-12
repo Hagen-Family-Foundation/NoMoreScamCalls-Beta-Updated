@@ -33,7 +33,6 @@ export function setStoredToken(token) {
 }
 
 const ENDPOINTS = {
-  VALIDATE_CODE: "/portal/invite-codes/validate",
   REGISTER: "/portal/auth/register",
   LOGIN: "/portal/auth/login",
   LOGOUT: "/portal/auth/logout",
@@ -48,9 +47,6 @@ const ENDPOINTS = {
   ADMIN_PARTICIPANT: (id) => `/portal/admin/participants/${id}`,
   ADMIN_PARTICIPANT_CALLS: (id) =>
     `/portal/admin/participants/${id}/calls`,
-  ADMIN_INVITE_CODES: "/portal/admin/invite-codes",
-  ADMIN_INVITE_CODE: (id) =>
-    `/portal/admin/invite-codes/${id}`,
   ADMIN_FEEDBACK: "/portal/admin/feedback",
   ADMIN_FEEDBACK_ITEM: (id) =>
     `/portal/admin/feedback/${id}`,
@@ -88,6 +84,11 @@ function normalizeUser(user) {
     contact_method:
       user.contact_method ??
       user.contactMethod ??
+      "",
+
+    contact_phone_number:
+      user.contact_phone_number ??
+      user.contactPhoneNumber ??
       "",
 
     agreement_accepted:
@@ -206,19 +207,15 @@ async function request(
 }
 
 export const portalApi = {
-  validateInviteCode: (code) =>
-    request(ENDPOINTS.VALIDATE_CODE, {
-      method: "POST",
-      body: { code },
-    }),
-
   register: async (payload) => {
     const result = await request(
       ENDPOINTS.REGISTER,
       {
         method: "POST",
         body: {
-          code: payload.code,
+          betaAccessCode:
+            payload.betaAccessCode ??
+            payload.beta_access_code,
           firstName:
             payload.firstName ??
             payload.first_name,
@@ -226,11 +223,9 @@ export const portalApi = {
             payload.lastName ??
             payload.last_name,
           email: payload.email,
-          phoneNumber:
-            payload.phoneNumber ??
-            payload.phone_number ??
-            payload.phone,
-          carrier: payload.carrier,
+          contactPhoneNumber:
+            payload.contactPhoneNumber ??
+            payload.contact_phone_number,
           contactMethod:
             payload.contactMethod ??
             payload.contact_method,
@@ -373,36 +368,6 @@ export const portalApi = {
     request(
       ENDPOINTS.ADMIN_PARTICIPANT_CALLS(id),
       {
-        auth: true,
-      }
-    ),
-
-  adminInviteCodes: () =>
-    request(
-      ENDPOINTS.ADMIN_INVITE_CODES,
-      {
-        auth: true,
-      }
-    ),
-
-  adminCreateInviteCode: () =>
-    request(
-      ENDPOINTS.ADMIN_INVITE_CODES,
-      {
-        method: "POST",
-        auth: true,
-      }
-    ),
-
-  adminUpdateInviteCode: (
-    id,
-    payload
-  ) =>
-    request(
-      ENDPOINTS.ADMIN_INVITE_CODE(id),
-      {
-        method: "PATCH",
-        body: payload,
         auth: true,
       }
     ),
