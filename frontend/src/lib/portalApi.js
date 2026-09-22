@@ -38,6 +38,8 @@ const ENDPOINTS = {
   LOGOUT: "/portal/auth/logout",
   ME: "/portal/me",
   ME_ONBOARDING: "/portal/me/onboarding",
+  PHONE_MODELS: "/portal/phone-models",
+  ME_ONBOARDING_COMPLETION: "/portal/me/onboarding-completion",
   ME_LOCATIONS: "/portal/me/locations",
   ME_PROTECTED_LINES: (locationId) =>
     `/portal/me/locations/${locationId}/protected-lines`,
@@ -301,6 +303,23 @@ export const portalApi = {
           payload.contact_phone_number,
         contactMethod:
           payload.contactMethod ?? payload.contact_method,
+      },
+      auth: true,
+    }),
+
+  listPhoneModels: async () => {
+    const result = await request(ENDPOINTS.PHONE_MODELS, { auth: true });
+    return result?.phoneModels ?? [];
+  },
+
+  completeBetaOnboarding: (payload) =>
+    request(ENDPOINTS.ME_ONBOARDING_COMPLETION, {
+      method: "POST",
+      body: {
+        protectedPhoneNumber: payload.protectedPhoneNumber,
+        callerFacingBusinessName: payload.callerFacingBusinessName,
+        carrier: payload.carrier,
+        phoneModelId: payload.phoneModelId,
       },
       auth: true,
     }),

@@ -11,14 +11,14 @@ import { portalApi } from "@/lib/portalApi";
 
 export function ForwardingInstructions({ provisioning }) {
   if (!provisioning?.forwardingInstructions) return null;
-  const { protectedPhoneNumber, screeningNumber, instructions } =
+  const { protectedPhoneNumber, systemNumber, screeningNumber, instructions } =
     provisioning.forwardingInstructions;
 
   return (
     <div className="space-y-4" data-testid="forwarding-instructions">
       <div className="grid gap-3 sm:grid-cols-2">
         <SetupFact label="Protected line" value={protectedPhoneNumber} />
-        <SetupFact label="NMSC system number" value={screeningNumber} mono />
+        <SetupFact label="NMSC system number" value={systemNumber ?? screeningNumber} mono />
       </div>
       <div className="rounded-lg border border-primary/20 bg-primary-glow p-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -35,13 +35,41 @@ export function ForwardingInstructions({ provisioning }) {
   );
 }
 
+export function ApplicationHandoff({ handoff }) {
+  if (!handoff) return null;
+  if (handoff.compatibility === "unsupported") {
+    return (
+      <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4" data-testid="application-unsupported">
+        <p className="font-medium text-destructive">This Phone Model is not currently supported.</p>
+        <p className="mt-1 text-sm text-muted-foreground">No System Number was assigned. Contact NMSC before continuing.</p>
+      </div>
+    );
+  }
+  if (handoff.status === "distribution_unavailable") {
+    return (
+      <div className="rounded-lg border border-warning/30 bg-warning/10 p-4" data-testid="application-distribution-unavailable">
+        <p className="font-medium text-foreground">Application installation is not available yet.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Your setup is saved. NMSC will provide the correct {handoff.platform === "ios" ? "iPhone" : "Android"} installation link when distribution is configured.</p>
+      </div>
+    );
+  }
+  return (
+    <Button asChild variant="cta" size="lg" data-testid="application-install-link">
+      <a href={handoff.url}>Install NMSC for {handoff.platform === "ios" ? "iPhone" : "Android"}</a>
+    </Button>
+  );
+}
+
 export default function ProtectedLineSetupPage() {
   const { user, refreshUser } = useAuth();
   const [protectedPhoneNumber, setProtectedPhoneNumber] = useState("");
   const [callerFacingBusinessName, setCallerFacingBusinessName] = useState("");
   const [carrier, setCarrier] = useState("");
+  const [phoneModels, setPhoneModels] = useState([]);
+  const [phoneModelId, setPhoneModelId] = useState("");
   const [selectedLine, setSelectedLine] = useState(null);
   const [provisioning, setProvisioning] = useState(null);
+  const [applicationHandoff, setApplicationHandoff] = useState(null);
   const [activation, setActivation] = useState(null);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
@@ -60,6 +88,18 @@ export default function ProtectedLineSetupPage() {
     }
   }, [existingLines, selectedLine]);
 
+  useEffect(() => {
+    let active = true;
+    portalApi.listPhoneModels()
+      .then((models) => {
+        if (active) setPhoneModels(models);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      });
+    return () => { active = false; };
+  }, []);
+
   const provisionLine = async (lineId) => {
     const result = await portalApi.provisionProtectedLine(lineId);
     setProvisioning(result.provisioning);
@@ -70,24 +110,25 @@ export default function ProtectedLineSetupPage() {
   const handleCreateAndProvision = async (event) => {
     event.preventDefault();
     setError("");
-    if (!protectedPhoneNumber.trim() || !callerFacingBusinessName.trim()) {
-      setError("Protected phone number and caller-facing spoken identity are required.");
+    if (!protectedPhoneNumber.trim() || !callerFacingBusinessName.trim() || !carrier.trim() || !phoneModelId) {
+      setError("Protected phone number, carrier, caller-facing spoken identity, and Phone Model are required.");
       return;
     }
 
     setWorking(true);
     try {
-      let location = user?.locations?.[0];
-      if (!location) {
-        location = (await portalApi.createLocation()).location;
-      }
-      const created = await portalApi.createProtectedLine(location.id, {
+      const completed = await portalApi.completeBetaOnboarding({
         protectedPhoneNumber: protectedPhoneNumber.trim(),
         callerFacingBusinessName: callerFacingBusinessName.trim(),
-        carrier: carrier.trim() || undefined,
+        carrier: carrier.trim(),
+        phoneModelId,
       });
-      setSelectedLine(created.protectedLine);
-      await provisionLine(created.protectedLine.id);
+      setApplicationHandoff(completed.applicationHandoff);
+      if (completed.completed) {
+        setSelectedLine(completed.protectedLine);
+        setProvisioning(completed.provisioning);
+      }
+      await refreshUser();
     } catch (err) {
       setError(err.message);
       await refreshUser();
@@ -148,6 +189,10 @@ export default function ProtectedLineSetupPage() {
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
           <p className="text-sm text-destructive">{error}</p>
         </div>
+      )}
+
+      {applicationHandoff && (
+        <ApplicationHandoff handoff={applicationHandoff} />
       )}
 
       {lineIsActive ? (
@@ -245,11 +290,28 @@ export default function ProtectedLineSetupPage() {
               />
               <SetupField
                 id="carrier"
-                label="Telephone carrier (optional)"
+                label="Telephone carrier"
                 value={carrier}
                 onChange={setCarrier}
                 testId="input-carrier"
               />
+              <div className="space-y-1.5">
+                <Label htmlFor="phone-model">Phone Model</Label>
+                <select
+                  id="phone-model"
+                  value={phoneModelId}
+                  onChange={(event) => setPhoneModelId(event.target.value)}
+                  data-testid="select-phone-model"
+                  className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                >
+                  <option value="">Select your Phone Model</option>
+                  {phoneModels.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.manufacturer} {model.displayName}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <Button type="submit" variant="cta" size="lg" disabled={working} data-testid="button-create-protected-line">
                 {working && <Loader2 className="h-4 w-4 animate-spin" />}
                 Create and provision Protected Line

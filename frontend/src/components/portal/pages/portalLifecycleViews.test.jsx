@@ -8,7 +8,7 @@ jest.mock(
 );
 
 import { ProtectedLinesList } from "./DashboardPage";
-import { ForwardingInstructions } from "./ProtectedLineSetupPage";
+import { ApplicationHandoff, ForwardingInstructions } from "./ProtectedLineSetupPage";
 
 describe("customer lifecycle views", () => {
   it("renders the backend-owned exact-line forwarding instructions", () => {
@@ -65,5 +65,41 @@ describe("customer lifecycle views", () => {
     expect(markup).toContain("+15550002222");
     expect(markup).toContain("Inactive");
     expect(markup).toContain("Not assigned");
+  });
+
+  it("presents only the Phone-Model-derived application handoff", () => {
+    const available = renderToStaticMarkup(
+      <ApplicationHandoff handoff={{
+        compatibility: "supported",
+        platform: "ios",
+        status: "available",
+        url: "https://example.test/ios",
+      }} />
+    );
+    expect(available).toContain("Install NMSC for");
+    expect(available).toContain("iPhone");
+    expect(available).toContain("https://example.test/ios");
+
+    const unavailable = renderToStaticMarkup(
+      <ApplicationHandoff handoff={{
+        compatibility: "supported",
+        platform: "android",
+        status: "distribution_unavailable",
+        url: null,
+      }} />
+    );
+    expect(unavailable).toContain("Application installation is not available yet");
+    expect(unavailable).toContain("Android");
+
+    const unsupported = renderToStaticMarkup(
+      <ApplicationHandoff handoff={{
+        compatibility: "unsupported",
+        platform: null,
+        status: "unsupported",
+        url: null,
+      }} />
+    );
+    expect(unsupported).toContain("not currently supported");
+    expect(unsupported).toContain("No System Number was assigned");
   });
 });

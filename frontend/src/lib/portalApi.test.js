@@ -221,4 +221,59 @@ describe("portal agreement API", () => {
     expect(provisioned.provisioning.forwardingInstructions.instructions)
       .toBe("Backend-owned exact-line instructions");
   });
+
+  it("uses one authenticated onboarding-completion request with recorded Phone Model", async () => {
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          phoneModels: [
+            {
+              id: "apple-iphone-16-pro-max",
+              manufacturer: "Apple",
+              displayName: "iPhone 16 Pro Max",
+              platform: "ios",
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          completed: true,
+          protectedLine: { id: 20, systemNumber: "+15550003000" },
+          applicationHandoff: {
+            compatibility: "supported",
+            platform: "ios",
+            status: "available",
+            url: "https://example.test/ios",
+          },
+        }),
+      });
+
+    const { portalApi } = require("./portalApi");
+    await expect(portalApi.listPhoneModels()).resolves.toHaveLength(1);
+    await portalApi.completeBetaOnboarding({
+      protectedPhoneNumber: "+15550002000",
+      callerFacingBusinessName: "Exact Customer Phrase",
+      carrier: "Example Carrier",
+      phoneModelId: "apple-iphone-16-pro-max",
+    });
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      "https://api.example.test/portal/me/onboarding-completion",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          protectedPhoneNumber: "+15550002000",
+          callerFacingBusinessName: "Exact Customer Phrase",
+          carrier: "Example Carrier",
+          phoneModelId: "apple-iphone-16-pro-max",
+        }),
+      })
+    );
+  });
 });
