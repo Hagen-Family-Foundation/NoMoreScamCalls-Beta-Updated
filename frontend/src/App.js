@@ -27,6 +27,7 @@ import DashboardPage from "@/components/portal/pages/DashboardPage";
 import ProfilePage from "@/components/portal/pages/ProfilePage";
 import FeedbackPage from "@/components/portal/pages/FeedbackPage";
 import AdminOverviewPage from "@/components/portal/pages/AdminOverviewPage";
+import AdminCallResultsPage from "@/components/portal/pages/AdminCallResultsPage";
 import AdminParticipantsPage from "@/components/portal/pages/AdminParticipantsPage";
 import AdminParticipantDetailPage from "@/components/portal/pages/AdminParticipantDetailPage";
 import AdminFeedbackPage from "@/components/portal/pages/AdminFeedbackPage";
@@ -99,6 +100,7 @@ function App() {
             }
           >
             <Route index element={<AdminOverviewPage />} />
+            <Route path="calls" element={<AdminCallResultsPage />} />
             <Route path="participants" element={<AdminParticipantsPage />} />
             <Route
               path="participants/:id"

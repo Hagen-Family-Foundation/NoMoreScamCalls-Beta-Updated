@@ -15,6 +15,7 @@ const participantNav = [
 
 const adminNav = [
   { to: "/portal/admin", label: "Overview", icon: BarChart3, end: true },
+  { to: "/portal/admin/calls", label: "Call results", icon: Phone },
   { to: "/portal/admin/participants", label: "Participants", icon: Users },
   { to: "/portal/admin/feedback", label: "Feedback", icon: Inbox },
 ];

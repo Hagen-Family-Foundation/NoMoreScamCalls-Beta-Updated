@@ -141,6 +141,38 @@ describe("portal agreement API", () => {
     });
   });
 
+  it("loads the authenticated call-results list and exact session detail", async () => {
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ calls: [], summary: { total: 0 } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ call: { callSessionId: "session/one" }, events: [] }),
+      });
+
+    const { portalApi } = require("./portalApi");
+    await portalApi.adminCallResults(100);
+    await portalApi.adminCallResult("session/one");
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      1,
+      "https://api.example.test/portal/admin/calls?limit=100",
+      expect.objectContaining({
+        method: "GET",
+        headers: expect.objectContaining({ Authorization: "Bearer test-session" }),
+      })
+    );
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      "https://api.example.test/portal/admin/calls/session%2Fone",
+      expect.objectContaining({ method: "GET" })
+    );
+  });
+
   it("uses the authenticated exact-line setup and activation routes", async () => {
     global.fetch
       .mockResolvedValueOnce({

@@ -53,6 +53,9 @@ const ENDPOINTS = {
   ME_CALLS: "/portal/me/calls",
   ME_FEEDBACK: "/portal/me/feedback",
   ADMIN_STATS: "/portal/admin/stats",
+  ADMIN_CALLS: "/portal/admin/calls",
+  ADMIN_CALL: (sessionId) =>
+    `/portal/admin/calls/${encodeURIComponent(sessionId)}`,
   ADMIN_PARTICIPANTS: "/portal/admin/participants",
   ADMIN_PARTICIPANT: (id) => `/portal/admin/participants/${id}`,
   ADMIN_PARTICIPANT_CALLS: (id) =>
@@ -401,6 +404,17 @@ export const portalApi = {
 
   adminStats: () =>
     request(ENDPOINTS.ADMIN_STATS, {
+      auth: true,
+    }),
+
+  adminCallResults: (limit = 50) =>
+    request(ENDPOINTS.ADMIN_CALLS, {
+      auth: true,
+      query: { limit },
+    }),
+
+  adminCallResult: (sessionId) =>
+    request(ENDPOINTS.ADMIN_CALL(sessionId), {
       auth: true,
     }),
 
